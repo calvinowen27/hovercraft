@@ -1,7 +1,7 @@
 CC = g++
 CFLAGS = -std=c++17 -Wall -Wextra -pedantic
 
-LDFLAGS = -L./lib -lSDL2main -lSDL2
+LDFLAGS = -L./lib -lSDL2main -lSDL2 -lSDL2_image
 
 SRCDIR = src
 OBJDIR = build/obj
@@ -24,4 +24,4 @@ $(OBJDIR)/%.o: $(SRCDIR)/%.cpp
 
 .PHONY: clean
 clean:
-	rm -f $(OBJECTS)
+	rm -f $(EXECUTABLE) $(OBJECTS)
