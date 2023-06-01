@@ -1,4 +1,7 @@
-#include "../include/SDL2/SDL.h"
+#ifndef KEYBOARD_INCLUDE
+#define KEYBOARD_INCLUDE
+
+#include "../SDL2/SDL.h"
 
 class KeyboardHandler
 {
@@ -12,3 +15,5 @@ class KeyboardHandler
 
         bool isReleased(SDL_Scancode scancode);
 };
+
+#endif
