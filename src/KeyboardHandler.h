@@ -2,7 +2,8 @@
 
 class KeyboardHandler
 {
-    const Uint8 *keyboardState = SDL_GetKeyboardState(NULL);
+    private:
+        const Uint8 *keyboardState = SDL_GetKeyboardState(NULL);
 
     public:
         void handleKeyboardEvent(SDL_Event event);
