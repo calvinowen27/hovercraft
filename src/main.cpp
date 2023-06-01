@@ -3,10 +3,12 @@
 #include "../include/SDL2/SDL.h"
 #include "../include/SDL2/SDL_image.h"
 #include <iostream>
+#include "KeyboardHandler.h"
 
 using namespace std;
 
 const int WIDTH = 800, HEIGHT = 600;
+KeyboardHandler keyboardHandler;
 
 int main()
 {
@@ -75,21 +77,14 @@ int main()
                     r++;
                 }
 
-                if(event.key.keysym.sym == SDLK_w)
+                if(keyboardHandler.isPressed(SDL_SCANCODE_W))
                 {
                     spriteRect.y--;
                 }
-                if(event.key.keysym.sym == SDLK_s)
-                {
-                    spriteRect.y++;
-                }
-                if(event.key.keysym.sym == SDLK_a)
+
+                if(keyboardHandler.isPressed(SDL_SCANCODE_A))
                 {
                     spriteRect.x--;
-                }
-                if(event.key.keysym.sym == SDLK_d)
-                {
-                    spriteRect.x++;
                 }
             }
 
