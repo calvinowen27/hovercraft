@@ -94,6 +94,19 @@ Vector2& Vector2::operator/=(const float &a)
     return *this;
 }
 
+std::string Vector2::to_string() const
+{
+    std::stringstream ss;
+    ss << "(" << x << ", " << y << ")";
+    return ss.str();
+}
+
+std::ostream& operator<<(std::ostream& stream, const Vector2& v)
+{
+    stream << v.Vector2::to_string();
+    return stream;
+}
+
 Vector2::operator Vector2Int() const
 {
     return Vector2Int((int)x, (int)y);
@@ -169,7 +182,7 @@ Vector2Int Vector2Int::operator/(const float &a) const
 Vector2Int& Vector2Int::operator=(const Vector2Int &b)
 {
     x = b.x;
-    x = b.y;
+    y = b.y;
 
     return *this;
 }
@@ -204,6 +217,19 @@ Vector2Int& Vector2Int::operator/=(const float &a)
     y = (int)(y/a);
 
     return *this;
+}
+
+std::string Vector2Int::to_string() const
+{
+    std::stringstream ss;
+    ss << "(" << x << ", " << y << ")";
+    return ss.str();
+}
+
+std::ostream& operator<<(std::ostream& stream, const Vector2Int& v)
+{
+    stream << v.Vector2Int::to_string();
+    return stream;
 }
 
 Vector2Int::operator Vector2() const

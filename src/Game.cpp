@@ -3,6 +3,7 @@
 #include <iostream>
 #include <string>
 #include <map>
+#include <list>
 
 #include "../include/game/Game.h"
 #include "../include/SDL2/SDL.h"
@@ -23,34 +24,40 @@ map<string, SDL_Scancode> keyControls = {
     {"close", SDL_SCANCODE_ESCAPE}
 };
 
-Object obj("../content/smiley.png", Vector2(0, 0), Vector2(1, 1));
+bool Game::initialized = false;
+Game* Game::instance = nullptr;
 
 int main()
 {
-    if(Game::instance.gameInit()) return EXIT_FAILURE;
+    Game game;
+    // Game::instance = nullptr;
+    // Game::initialized = false;
+    // Game::instance = new Game();
+    if(Game::instance->gameInit()) return EXIT_FAILURE;
 
-    Game::instance.go();
+    Game::instance->go();
 
     return 0;
 }
 
 Game::Game()
 {
+    // if(instance == nullptr)
+    // {
+    //     instance = this;
+    // }
+    instance = this;
 }
 
 int Game::gameInit()
 {
-    if(!initialized)
-    {
-        instance = *this;
-        initialized = true;
-    }
+    // if(!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_EVENTS))
+    // {
+    //     cerr << "Error with SDL initialization: " << SDL_GetError() << endl;
+    //     return EXIT_FAILURE;
+    // }
 
-    if(!SDL_Init(SDL_INIT_EVERYTHING))
-    {
-        cerr << "Error with SDL initialization: " << SDL_GetError() << endl;
-        return EXIT_FAILURE;
-    }
+    SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_EVENTS);
 
     if(!IMG_Init(IMG_INIT_PNG))
     {
@@ -81,14 +88,16 @@ int Game::gameInit()
 
 void Game::go()
 {
+    Object obj("./content/smiley.png", Vector2(0, 0), Vector2(1, 1));
+
     while(running)
     {
         update();
         draw();
     }
 
-    SDL_DestroyRenderer(instance.renderer);
-    SDL_DestroyWindow(instance.window);
+    // SDL_DestroyRenderer(instance->renderer);
+    // SDL_DestroyWindow(instance->window);
     IMG_Quit();
     SDL_Quit();
 }
@@ -108,7 +117,7 @@ void Game::update()
 
         if(event.type == SDL_QUIT || keyboardHandler.isPressed(keyControls["close"]))
         {
-            return;
+            running = false;
         }
 
         // if(keyboardHandler.isPressed(keyControls["up"]))
@@ -135,9 +144,33 @@ void Game::draw()
 {
     SDL_RenderClear(renderer);
 
-    obj.draw();
+    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 
-    SDL_SetRenderDrawColor(renderer, 200, 200, 200, 255);
+    SDL_Surface* spriteSurface = IMG_Load("./content/smiley.png");
+    if(spriteSurface == NULL)
+    {
+        std::cerr << "Failed to load image to surface: " << IMG_GetError() << std::endl;
+        return;
+    }
+
+    SDL_Texture* spriteTexture = SDL_CreateTextureFromSurface(Game::instance->renderer, spriteSurface);
+    if(spriteTexture == NULL)
+    {
+        std::cerr << "Failed to load texture from surface: " << IMG_GetError() << std::endl;
+        return;
+    }
+
+    SDL_FreeSurface(spriteSurface);
+
+    SDL_Rect spriteRect{100, 100, 100, 100};
+
+    // SDL_RenderCopy(Game::instance->renderer, spriteTexture, NULL, &spriteRect);
+
+    // obj.draw();
+    for(list<Object>::iterator it = objs.begin(); it != objs.end(); it++)
+    {
+        (*it).draw();
+    }
 
     SDL_RenderPresent(renderer);
 }
@@ -151,7 +184,10 @@ Vector2 Game::pixelToWorld(Vector2Int px_pos)
 
 Vector2Int Game::worldToPixel(Vector2 pos)
 {
-    pos += cameraPos;
     pos *= ppm;
-    return (Vector2Int)pos + Vector2Int(winWidth / 2, winHeight / 2);
+    pos.x = winWidth / 2;
+    pos.y = winHeight / 2 - pos.y;
+    pos -= cameraPos * ppm;
+
+    return (Vector2Int)pos;
 }
