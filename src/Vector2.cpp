@@ -13,6 +13,12 @@ Vector2::Vector2(float x, float y)
     this->y = y;
 }
 
+Vector2::Vector2(const Vector2 &b)
+{
+    this->x = b.x;
+    this->y = b.y;
+}
+
 float distance(const Vector2 &a, const Vector2 &b)
 {
     return (float)(sqrt(pow(b.x-a.x, 2)+pow(b.y-a.y, 2)));
@@ -88,9 +94,9 @@ Vector2& Vector2::operator/=(const float &a)
     return *this;
 }
 
-operator Vector2Int()
+Vector2::operator Vector2Int() const
 {
-    
+    return Vector2Int((int)x, (int)y);
 }
 
 /* Vector2Int */
@@ -117,6 +123,12 @@ Vector2Int::Vector2Int(double x, double y)
 {
     this->x = (int)x;
     this->y = (int)y;
+}
+
+Vector2Int::Vector2Int(const Vector2Int &b)
+{
+    this->x = b.x;
+    this->y = b.y;
 }
 
 float distance(const Vector2Int &a, const Vector2Int &b)
@@ -192,4 +204,9 @@ Vector2Int& Vector2Int::operator/=(const float &a)
     y = (int)(y/a);
 
     return *this;
+}
+
+Vector2Int::operator Vector2() const
+{
+    return Vector2(x, y);
 }

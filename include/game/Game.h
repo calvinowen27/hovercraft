@@ -5,12 +5,26 @@
 #include "../SDL2/SDL_image.h"
 #include "Vector2.h"
 
-int winWidth = 800, winHeight = 600;
-SDL_Window* window;
-SDL_Renderer* renderer;
-Vector2 cameraPos;
+class Game
+{
+    public:
+        static Game instance;
+        bool initialized = false;
+        int winWidth = 800, winHeight = 600;
+        int ppm = 128; // pixels per meter, 128 by default
+        SDL_Window* window;
+        SDL_Renderer* renderer;
+        Vector2 cameraPos;
+        bool running = true;
 
-Vector2 pixelToWorld(Vector2Int px_pos);
-Vector2Int worldToPixel(Vector2 pos);
+        Game();
+        int gameInit();
+        void go();
+        void update();
+        void draw();
+        Vector2 pixelToWorld(Vector2Int px_pos);
+        Vector2Int worldToPixel(Vector2 pos);
+        friend bool operator==(const Game &a, const Game &b);
+};
 
 #endif

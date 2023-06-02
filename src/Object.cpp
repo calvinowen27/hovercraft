@@ -12,7 +12,7 @@ Object::Object(std::string texture_path, Vector2 pos, Vector2 dims)
         return;
     }
 
-    spriteTexture = SDL_CreateTextureFromSurface(renderer, spriteSurface);
+    spriteTexture = SDL_CreateTextureFromSurface(Game::instance.renderer, spriteSurface);
     if(spriteTexture == NULL)
     {
         std::cerr << "Failed to load texture from surface: " << IMG_GetError() << std::endl;
@@ -21,21 +21,26 @@ Object::Object(std::string texture_path, Vector2 pos, Vector2 dims)
 
     this->pos = pos;
     this->dims = dims;
-    this->px_dims = dims * ppm;
+    this->px_dims = (Vector2Int)(dims * Game::instance.ppm);
+    this->px_pos = Game::instance.worldToPixel(pos) - Vector2Int(px_dims.x / 2, px_dims.y);
 
     SDL_FreeSurface(spriteSurface);
 }
 
+Object::~Object()
+{
+    SDL_DestroyTexture(spriteTexture);
+}
+
 void Object::draw()
 {
-    SDL_Rect spriteRect;
-    spriteRect.x = 100;
-    spriteRect.y = 100;
-    spriteRect.w = 100;
-    spriteRect.h = 100;
+    SDL_Rect spriteRect{px_pos.x, px_pos.y, px_dims.x, px_dims.y};
+
+    SDL_RenderCopy(Game::instance.renderer, spriteTexture, NULL, &spriteRect);
 }
 
 void Object::update(float time)
 {
-    
+    std::cout << time << std::endl;
+    this->px_pos = Game::instance.worldToPixel(pos) - Vector2Int(px_dims.x / 2, px_dims.y);
 }
