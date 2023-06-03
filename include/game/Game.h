@@ -2,11 +2,18 @@
 #define GAME_INCLUDE
 
 #include <list>
+#include <map>
 
 #include "../SDL2/SDL.h"
 #include "../SDL2/SDL_image.h"
+#include "KeyboardHandler.h"
 #include "Vector2.h"
 #include "Object.h"
+#include "Player.h"
+
+class Object;
+class KeyboardHandler;
+class Player;
 
 class Game
 {
@@ -20,6 +27,9 @@ class Game
         SDL_Renderer* renderer;
         Vector2 cameraPos;
         bool running = true;
+        KeyboardHandler keyboardHandler;
+        std::map<std::string, SDL_Scancode> keyControls;
+        // Player player;
 
         Game();
         int gameInit();

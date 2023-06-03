@@ -1,4 +1,6 @@
 #include "../include/game/Vector2.h"
+#include <cmath>
+#include <sstream>
 
 /* Vector2 */
 Vector2::Vector2()
@@ -29,6 +31,11 @@ bool Vector2::equals(const Vector2& b) const
     return x == b.x && y == b.y;
 }
 
+void Vector2::normalize()
+{
+    if(x != 0 && y != 0) *this /= (sqrt(pow(x, 2) + pow(y, 2)));
+}
+
 bool operator==(const Vector2& a, const Vector2& b)
 {
     return a.equals(b);
@@ -41,7 +48,7 @@ Vector2 Vector2::operator+(const Vector2 &b) const
 
 Vector2 Vector2::operator-(const Vector2 &b) const
 {
-    return Vector2(b.x-x, b.y-y);
+    return Vector2(x-b.x, y-b.y);
 }
 
 Vector2 Vector2::operator*(const float &a) const
@@ -154,6 +161,11 @@ bool Vector2Int::equals(const Vector2Int &b) const
     return x == b.x && y == b.y;
 }
 
+void Vector2Int::normalize()
+{
+    if(x != 0 && y != 0) *this /= (sqrt(pow(x, 2) + pow(y, 2)));
+}
+
 bool operator==(const Vector2Int &a, const Vector2Int &b)
 {
     return a.equals(b);
@@ -161,12 +173,12 @@ bool operator==(const Vector2Int &a, const Vector2Int &b)
 
 Vector2Int Vector2Int::operator+(const Vector2Int &b) const
 {
-    return Vector2Int(b.x+x, b.y+y);
+    return Vector2Int(x+b.x, y+b.y);
 }
 
 Vector2Int Vector2Int::operator-(const Vector2Int &b) const
 {
-    return Vector2Int(b.x-x, b.y-y);
+    return Vector2Int(x-b.x, y-b.y);
 }
 
 Vector2Int Vector2Int::operator*(const float &a) const

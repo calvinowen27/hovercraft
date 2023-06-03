@@ -1,28 +1,10 @@
 #define SDL_MAIN_HANDLED
 
-#include <iostream>
-#include <string>
-#include <map>
-#include <list>
-
 #include "../include/game/Game.h"
-#include "../include/SDL2/SDL.h"
-#include "../include/SDL2/SDL_image.h"
-#include "../include/game/KeyboardHandler.h"
-#include "../include/game/Vector2.h"
-#include "../include/game/Object.h"
-#include "../include/game/Game.h"
+#include <thread>
+#include <chrono>
 
 using namespace std;
-
-KeyboardHandler keyboardHandler;
-map<string, SDL_Scancode> keyControls = {
-    {"up", SDL_SCANCODE_W},
-    {"down", SDL_SCANCODE_S},
-    {"left", SDL_SCANCODE_A},
-    {"right", SDL_SCANCODE_D},
-    {"close", SDL_SCANCODE_ESCAPE}
-};
 
 bool Game::initialized = false;
 Game* Game::instance = nullptr;
@@ -42,21 +24,15 @@ int main()
 
 Game::Game()
 {
-    // if(instance == nullptr)
-    // {
-    //     instance = this;
-    // }
-    instance = this;
+    if(instance == nullptr)
+    {
+        instance = this;
+    }
+    // instance = this;
 }
 
 int Game::gameInit()
 {
-    // if(!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_EVENTS))
-    // {
-    //     cerr << "Error with SDL initialization: " << SDL_GetError() << endl;
-    //     return EXIT_FAILURE;
-    // }
-
     SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_EVENTS);
 
     if(!IMG_Init(IMG_INIT_PNG))
@@ -83,18 +59,46 @@ int Game::gameInit()
         return EXIT_FAILURE;
     }
 
+    keyControls =
+    {
+        {"up", SDL_SCANCODE_W},
+        {"down", SDL_SCANCODE_S},
+        {"left", SDL_SCANCODE_A},
+        {"right", SDL_SCANCODE_D},
+        {"close", SDL_SCANCODE_ESCAPE}
+    };
+
+    Object::setGame(instance);
+
     return 0;
 }
 
 void Game::go()
 {
-    Object obj("./content/smiley.png", Vector2(0, 0), Vector2(1, 1));
+    // Object obj("./content/smiley.png", Vector2(0, 0), Vector2(1, 1));
+
+    // Player player;
+    // player = Player();
+
+    thread updateThread([this]() {update();});
 
     while(running)
     {
-        update();
+        SDL_Event event;
+
+        if(SDL_PollEvent(&event))
+        {
+            if(event.type == SDL_QUIT || keyboardHandler.isPressed(keyControls["close"]))
+            {
+                running = false;
+            }
+        }
+
+        // update();
         draw();
     }
+
+    updateThread.join();
 
     // SDL_DestroyRenderer(instance->renderer);
     // SDL_DestroyWindow(instance->window);
@@ -104,39 +108,21 @@ void Game::go()
 
 void Game::update()
 {
-    SDL_Event event;
+    float time = 0.02;
 
-    if(SDL_PollEvent(&event))
+    Player player;
+
+    while(running)
     {
-        // may want to use this for checking keypressed later when adding ability to change controls
-        // if(event.type == SDL_KEYDOWN)
+        // obj.update();
+        // for(list<Object>::iterator it = instance->objs.begin(); it != instance->objs.end(); it++)
         // {
-        //     pseudo
-        //     keyControls[whatever control is being changed] = detected scancode            
+        //     (*it).update(time);
         // }
 
-        if(event.type == SDL_QUIT || keyboardHandler.isPressed(keyControls["close"]))
-        {
-            running = false;
-        }
+        player.update(time);
 
-        // if(keyboardHandler.isPressed(keyControls["up"]))
-        // {
-        //     spriteRect.y--;
-        // }
-        // if(keyboardHandler.isPressed(keyControls["down"]))
-        // {
-        //     spriteRect.y++;
-        // }
-
-        // if(keyboardHandler.isPressed(keyControls["left"]))
-        // {
-        //     spriteRect.x--;
-        // }
-        // if(keyboardHandler.isPressed(keyControls["right"]))
-        // {
-        //     spriteRect.x++;
-        // }
+        this_thread::sleep_for(chrono::milliseconds((int)(time * 1000)));
     }
 }
 
@@ -145,26 +131,6 @@ void Game::draw()
     SDL_RenderClear(renderer);
 
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
-
-    SDL_Surface* spriteSurface = IMG_Load("./content/smiley.png");
-    if(spriteSurface == NULL)
-    {
-        std::cerr << "Failed to load image to surface: " << IMG_GetError() << std::endl;
-        return;
-    }
-
-    SDL_Texture* spriteTexture = SDL_CreateTextureFromSurface(Game::instance->renderer, spriteSurface);
-    if(spriteTexture == NULL)
-    {
-        std::cerr << "Failed to load texture from surface: " << IMG_GetError() << std::endl;
-        return;
-    }
-
-    SDL_FreeSurface(spriteSurface);
-
-    SDL_Rect spriteRect{100, 100, 100, 100};
-
-    // SDL_RenderCopy(Game::instance->renderer, spriteTexture, NULL, &spriteRect);
 
     // obj.draw();
     for(list<Object>::iterator it = objs.begin(); it != objs.end(); it++)
@@ -184,10 +150,7 @@ Vector2 Game::pixelToWorld(Vector2Int px_pos)
 
 Vector2Int Game::worldToPixel(Vector2 pos)
 {
+    pos += cameraPos;
     pos *= ppm;
-    pos.x = winWidth / 2;
-    pos.y = winHeight / 2 - pos.y;
-    pos -= cameraPos * ppm;
-
-    return (Vector2Int)pos;
+    return (Vector2Int)pos + Vector2Int(winWidth / 2, winHeight / 2);
 }

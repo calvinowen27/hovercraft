@@ -1,5 +1,9 @@
 #include "../include/game/KeyboardHandler.h"
-#include <iostream>
+
+KeyboardHandler::KeyboardHandler()
+{
+    keyboardState = SDL_GetKeyboardState(NULL);
+}
 
 bool KeyboardHandler::isPressed(SDL_Scancode scancode)
 {

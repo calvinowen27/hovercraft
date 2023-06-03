@@ -6,13 +6,12 @@
 class KeyboardHandler
 {
     private:
-        const Uint8 *keyboardState = SDL_GetKeyboardState(NULL);
+        const Uint8 *keyboardState;
 
     public:
+        KeyboardHandler();
         void handleKeyboardEvent(SDL_Event event);
-
         bool isPressed(SDL_Scancode scancode);
-
         bool isReleased(SDL_Scancode scancode);
 };
 
