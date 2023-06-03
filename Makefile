@@ -13,14 +13,23 @@ OBJECTS = $(patsubst $(SRCDIR)/%.cpp,$(OBJDIR)/%.o,$(SOURCES))
 
 EXECUTABLE = hovercraft
 
-debug: $(OBJECTS)
+debug: $(OBJECTS) $(DBGDIR)
 	$(CC) $(OBJECTS) $(LDFLAGS) -o $(DBGDIR)$(EXECUTABLE)
 
-release: $(OBJECTS)
+release: $(OBJECTS) $(RLSDIR)
 	$(CC) $(OBJECTS) $(LDFLAGS) -o $(RLSDIR)$(EXECUTABLE)
 
-$(OBJDIR)/%.o: $(SRCDIR)/%.cpp
+$(OBJDIR)/%.o: $(SRCDIR)/%.cpp $(OBJDIR)
 	$(CC) $(CFLAGS) -c $< -o $@
+
+$(OBJDIR):
+	mkdir -p $@
+
+$(DBGDIR):
+	mkdir -p $@
+
+$(RLSDIR):
+	mkdir -p $@
 
 .PHONY: clean
 clean:
