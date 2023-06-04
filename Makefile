@@ -1,7 +1,7 @@
 CC = g++
 CFLAGS = -std=c++17 -Wall -Wextra -pedantic
 
-LDFLAGS = -L./lib -lSDL2main -lSDL2 -lSDL2_image
+LDFLAGS = -L./lib -lSDL2main -lSDL2 -lSDL2_image -lSDL2_ttf
 
 SRCDIR = src
 OBJDIR = build/obj

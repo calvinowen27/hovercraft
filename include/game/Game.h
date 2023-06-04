@@ -3,9 +3,11 @@
 
 #include <vector>
 #include <map>
+#include <mutex>
 
 #include "../SDL2/SDL.h"
 #include "../SDL2/SDL_image.h"
+#include "../SDL2/SDL_ttf.h"
 #include "KeyboardHandler.h"
 #include "Vector2.h"
 #include "Object.h"
@@ -21,8 +23,11 @@ class Game
         static Game* instance;
 
     public:
+        std::mutex mutex_;
+        const int UPDATES_PER_SEC = 50; // physics updates
         std::vector<Object *> objs;
         int winWidth = 800, winHeight = 600;
+        int fps, ups; // frames per sec, updates per sec
         int ppm = 128; // pixels per meter, 128 by default
         SDL_Window* window;
         SDL_Renderer* renderer;

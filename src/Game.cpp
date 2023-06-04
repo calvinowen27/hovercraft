@@ -34,12 +34,25 @@ Game* Game::getInstance()
 int Game::gameInit()
 {
     SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_EVENTS);
+    // if(!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_EVENTS))
+    // {
+    //     cerr << "Error with SDL initialization: " << SDL_GetError() << endl;
+    //     return EXIT_FAILURE;
+    // }
 
     if(!IMG_Init(IMG_INIT_PNG))
     {
         cerr << "Error with SDL_image initialization: " << IMG_GetError() << endl;
         return EXIT_FAILURE;
     }
+
+    TTF_Init();
+
+    // if(!TTF_Init())
+    // {
+    //     cerr << "Error with SDL_ttf initialization: " << TTF_GetError() << endl;
+    //     return EXIT_FAILURE;
+    // }
 
     window = SDL_CreateWindow("hovercraft", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 
                                         winWidth, winHeight, SDL_WINDOW_ALLOW_HIGHDPI);
@@ -79,10 +92,12 @@ int Game::gameInit()
 
 void Game::go()
 {
+    thread updateThread([this]{update();});
+
+    SDL_Event event;
+
     while(running)
     {
-        SDL_Event event;
-
         if(SDL_PollEvent(&event))
         {
             if(event.type == SDL_QUIT || keyboardHandler.isPressed(keyControls["close"]))
@@ -90,32 +105,52 @@ void Game::go()
                 running = false;
             }
         }
-
-        update();
         draw();
     }
 
+    updateThread.join();
+
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
+    TTF_Quit();
     IMG_Quit();
     SDL_Quit();
 }
 
 void Game::update()
 {
-    float time = 0.02;
+    using namespace chrono;
+    float timeMult = 1 / (float)UPDATES_PER_SEC;
 
-    // obj.update();
-    for(Object *obj : objs)
+    chrono::_V2::system_clock::time_point startTime;
+    milliseconds timeDiff(1000 / UPDATES_PER_SEC);
+    milliseconds execTime;
+    milliseconds sleepTime;
+
+    while(instance->running)
     {
-        obj->update(time);
+        startTime = high_resolution_clock::now();
+        // obj.update();
+        for(Object *obj : instance->objs)
+        {
+            obj->update(timeMult);
+        }
+
+        execTime = duration_cast<milliseconds>(high_resolution_clock::now() - startTime);
+
+        sleepTime = timeDiff - execTime;
+        this_thread::sleep_for(sleepTime);
     }
 
-    this_thread::sleep_for(chrono::milliseconds((int)(time * 1000)));
+    // ups = 1000 / sleepTime.count();
 }
 
 void Game::draw()
 {
+    using namespace chrono;
+
+    auto startTime = high_resolution_clock::now();
+
     SDL_RenderClear(renderer);
 
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
@@ -126,7 +161,29 @@ void Game::draw()
         obj->draw();
     }
 
+    auto execTime = duration_cast<milliseconds>(high_resolution_clock::now() - startTime);
+
+    // lock_guard<mutex> guard(mutex_);
+    // fps = 1000 / execTime.count();
+
+    // draw fps and ups
+    // TTF_Font* arial = TTF_OpenFont("./content/arial.ttf", 24);
+    // SDL_Color white = {255, 255, 255, 255};
+    // SDL_Surface* fpsSurface = TTF_RenderText_Solid(arial, to_string(fps).c_str(), white);
+    // SDL_Texture* fpsTexture = SDL_CreateTextureFromSurface(renderer, fpsSurface);
+    // SDL_Surface* upsSurface = TTF_RenderText_Solid(arial, to_string(ups).c_str(), white);
+    // SDL_Texture* upsTexture = SDL_CreateTextureFromSurface(renderer, upsSurface);
+
+    // SDL_RenderCopy(renderer, fpsTexture, NULL, new SDL_Rect{0, 0, 100, 100});
+    // SDL_RenderCopy(renderer, upsTexture, NULL, new SDL_Rect{0, 100, 100, 100});
+
     SDL_RenderPresent(renderer);
+
+    // SDL_FreeSurface(fpsSurface);
+    // SDL_FreeSurface(upsSurface);
+    // SDL_DestroyTexture(fpsTexture);
+    // SDL_DestroyTexture(upsTexture);
+    // TTF_CloseFont(arial);
 }
 
 Vector2 Game::pixelToWorld(Vector2Int px_pos)
