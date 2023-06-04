@@ -6,29 +6,29 @@
 
 using namespace std;
 
-bool Game::initialized = false;
 Game* Game::instance = nullptr;
 
 int main()
 {
-    Game game;
-    // Game::instance = nullptr;
-    // Game::initialized = false;
-    // Game::instance = new Game();
-    if(Game::instance->gameInit()) return EXIT_FAILURE;
+    if(Game::getInstance()->gameInit()) return EXIT_FAILURE;
 
-    Game::instance->go();
+    Game::getInstance()->go();
 
     return 0;
 }
 
 Game::Game()
 {
+}
+
+Game* Game::getInstance()
+{
     if(instance == nullptr)
     {
-        instance = this;
+        instance = new Game();
     }
-    // instance = this;
+
+    return instance;
 }
 
 int Game::gameInit()
@@ -68,20 +68,17 @@ int Game::gameInit()
         {"close", SDL_SCANCODE_ESCAPE}
     };
 
-    Object::setGame(instance);
+    Player* player = new Player();
+    // objs.push_back(player);
+
+    Object* block1 = new Object("./content/blueblock.png", Vector2(1, 1), Vector2(0.25, 0.25));
+    Object* block2 = new Object("./content/blueblock.png", Vector2(-2, -3), Vector2(1, 1));
 
     return 0;
 }
 
 void Game::go()
 {
-    // Object obj("./content/smiley.png", Vector2(0, 0), Vector2(1, 1));
-
-    // Player player;
-    // player = Player();
-
-    thread updateThread([this]() {update();});
-
     while(running)
     {
         SDL_Event event;
@@ -94,14 +91,12 @@ void Game::go()
             }
         }
 
-        // update();
+        update();
         draw();
     }
 
-    updateThread.join();
-
-    // SDL_DestroyRenderer(instance->renderer);
-    // SDL_DestroyWindow(instance->window);
+    SDL_DestroyRenderer(renderer);
+    SDL_DestroyWindow(window);
     IMG_Quit();
     SDL_Quit();
 }
@@ -110,20 +105,13 @@ void Game::update()
 {
     float time = 0.02;
 
-    Player player;
-
-    while(running)
+    // obj.update();
+    for(Object *obj : objs)
     {
-        // obj.update();
-        // for(list<Object>::iterator it = instance->objs.begin(); it != instance->objs.end(); it++)
-        // {
-        //     (*it).update(time);
-        // }
-
-        player.update(time);
-
-        this_thread::sleep_for(chrono::milliseconds((int)(time * 1000)));
+        obj->update(time);
     }
+
+    this_thread::sleep_for(chrono::milliseconds((int)(time * 1000)));
 }
 
 void Game::draw()
@@ -133,9 +121,9 @@ void Game::draw()
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
 
     // obj.draw();
-    for(list<Object>::iterator it = objs.begin(); it != objs.end(); it++)
+    for(Object *obj : objs)
     {
-        (*it).draw();
+        obj->draw();
     }
 
     SDL_RenderPresent(renderer);
@@ -144,13 +132,15 @@ void Game::draw()
 Vector2 Game::pixelToWorld(Vector2Int px_pos)
 {
     px_pos -= Vector2Int(winWidth / 2, winHeight / 2);
+    px_pos.y -= winHeight;
     px_pos /= ppm;
-    return (Vector2)px_pos - cameraPos;
+    return (Vector2)px_pos + cameraPos;
 }
 
 Vector2Int Game::worldToPixel(Vector2 pos)
 {
-    pos += cameraPos;
+    pos -= cameraPos;
     pos *= ppm;
-    return (Vector2Int)pos + Vector2Int(winWidth / 2, winHeight / 2);
+    pos.y = winHeight - pos.y;
+    return (Vector2Int)pos + Vector2Int(winWidth / 2, -winHeight / 2);
 }

@@ -10,8 +10,8 @@ class Player : public Object
         float moveSpeed = 5;
 
         Player();
-        void draw();
-        void update(float time);
+        void draw() override;
+        void update(float time) override;
 };
 
 #endif

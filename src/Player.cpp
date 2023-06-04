@@ -34,6 +34,8 @@ void Player::update(float time)
     velocity = dir * moveSpeed;
 
     this->Object::update(time);
+
+    game->cameraPos = pos + Vector2(0, dims.y / 2);
 }
 
 void Player::draw()

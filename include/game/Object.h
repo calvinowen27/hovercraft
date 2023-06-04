@@ -12,7 +12,7 @@ class Game;
 class Object
 {
     protected:
-        static Game* game;
+        Game* game;
         Vector2 pos; // m --> 128 pixels/m default
                     // position is at bottom center of object
         Vector2Int px_pos; // pixel position, at top left of object
@@ -34,7 +34,6 @@ class Object
         Vector2 getDims();
         Vector2Int getPxDims();
         SDL_Texture* getTexture();
-        static void setGame(Game* game);
 };
 
 #endif
