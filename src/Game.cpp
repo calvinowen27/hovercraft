@@ -84,19 +84,23 @@ int Game::gameInit()
     Player* player = new Player();
     // objs.push_back(player);
 
-    Object* block1 = new Object("./content/blueblock.png", Vector2(1, 1), Vector2(0.25, 0.25));
-    Object* block2 = new Object("./content/blueblock.png", Vector2(-2, -3), Vector2(1, 1));
+    Object* block1 = new Object("./content/blueblock.png", Vector2(1, 1), Vector2(1, 1));
+    Object* block2 = new Object("./content/blueblock.png", Vector2(2, 1), Vector2(1, 1));
+    Object* block3 = new Object("./content/blueblock.png", Vector2(3, 1), Vector2(1, 1));
+    Object* block4 = new Object("./content/blueblock.png", Vector2(4, 1), Vector2(1, 1));
+    Object* block5 = new Object("./content/blueblock.png", Vector2(5, 1), Vector2(1, 1));
+    Object* block6 = new Object("./content/blueblock.png", Vector2(6, 1), Vector2(1, 1));
 
     return 0;
 }
 
 void Game::go()
 {
-    thread updateThread([this]{update();});
+    thread updateThread([this]{runUpdates();});
 
     SDL_Event event;
 
-    while(running)
+    while(instance->running)
     {
         if(SDL_PollEvent(&event))
         {
@@ -105,6 +109,7 @@ void Game::go()
                 running = false;
             }
         }
+
         draw();
     }
 
@@ -117,32 +122,44 @@ void Game::go()
     SDL_Quit();
 }
 
-void Game::update()
+void Game::runUpdates()
 {
-    using namespace chrono;
-    float timeMult = 1 / (float)UPDATES_PER_SEC;
-
-    chrono::_V2::system_clock::time_point startTime;
-    milliseconds timeDiff(1000 / UPDATES_PER_SEC);
-    milliseconds execTime;
-    milliseconds sleepTime;
 
     while(instance->running)
     {
-        startTime = high_resolution_clock::now();
-        // obj.update();
-        for(Object *obj : instance->objs)
-        {
-            obj->update(timeMult);
-        }
+        update();
+    }
+}
 
-        execTime = duration_cast<milliseconds>(high_resolution_clock::now() - startTime);
+void Game::update()
+{
+    using namespace chrono;
+    float updateTime = 1 / (float)UPDATES_PER_SEC;
 
-        sleepTime = timeDiff - execTime;
-        this_thread::sleep_for(sleepTime);
+    chrono::_V2::system_clock::time_point startTime;
+    nanoseconds timeDiff((int)(updateTime * 1000000000));
+    nanoseconds execTime;
+    nanoseconds sleepTime;
+
+    // startTime = high_resolution_clock::now();
+    // obj.update();
+    for(Object *obj : instance->objs)
+    {
+        obj->update(updateTime);
     }
 
-    // ups = 1000 / sleepTime.count();
+    // execTime = duration_cast<nanoseconds>(high_resolution_clock::now() - startTime);
+
+    // cout << execTime.count() << endl;
+
+    // sleepTime = timeDiff - execTime;
+
+    lock_guard<mutex> guard(mutex_);
+
+    // ups = 1000000000 / timeDiff.count();
+    ups = UPDATES_PER_SEC;
+
+    this_thread::sleep_for(milliseconds((int)(updateTime * 1000)));
 }
 
 void Game::draw()
@@ -161,29 +178,32 @@ void Game::draw()
         obj->draw();
     }
 
-    auto execTime = duration_cast<milliseconds>(high_resolution_clock::now() - startTime);
+    auto execTime = duration_cast<nanoseconds>(high_resolution_clock::now() - startTime);
 
-    // lock_guard<mutex> guard(mutex_);
-    // fps = 1000 / execTime.count();
+    lock_guard<mutex> guard(mutex_);
+    fps = 1000000000 / execTime.count();
+    // fps = 1;
+
+    // cout << execTime.count() << endl;
 
     // draw fps and ups
-    // TTF_Font* arial = TTF_OpenFont("./content/arial.ttf", 24);
-    // SDL_Color white = {255, 255, 255, 255};
-    // SDL_Surface* fpsSurface = TTF_RenderText_Solid(arial, to_string(fps).c_str(), white);
-    // SDL_Texture* fpsTexture = SDL_CreateTextureFromSurface(renderer, fpsSurface);
-    // SDL_Surface* upsSurface = TTF_RenderText_Solid(arial, to_string(ups).c_str(), white);
-    // SDL_Texture* upsTexture = SDL_CreateTextureFromSurface(renderer, upsSurface);
+    TTF_Font* arial = TTF_OpenFont("./content/arial.ttf", 24);
+    SDL_Color black = {0, 0, 0, 255};
+    SDL_Surface* fpsSurface = TTF_RenderText_Solid(arial, to_string(fps).c_str(), black);
+    SDL_Texture* fpsTexture = SDL_CreateTextureFromSurface(renderer, fpsSurface);
+    SDL_Surface* upsSurface = TTF_RenderText_Solid(arial, to_string(ups).c_str(), black);
+    SDL_Texture* upsTexture = SDL_CreateTextureFromSurface(renderer, upsSurface);
 
-    // SDL_RenderCopy(renderer, fpsTexture, NULL, new SDL_Rect{0, 0, 100, 100});
-    // SDL_RenderCopy(renderer, upsTexture, NULL, new SDL_Rect{0, 100, 100, 100});
+    SDL_RenderCopy(renderer, fpsTexture, NULL, new SDL_Rect{0, 0, 100, 50});
+    SDL_RenderCopy(renderer, upsTexture, NULL, new SDL_Rect{0, 50, 100, 50});
 
     SDL_RenderPresent(renderer);
 
-    // SDL_FreeSurface(fpsSurface);
-    // SDL_FreeSurface(upsSurface);
-    // SDL_DestroyTexture(fpsTexture);
-    // SDL_DestroyTexture(upsTexture);
-    // TTF_CloseFont(arial);
+    SDL_FreeSurface(fpsSurface);
+    SDL_FreeSurface(upsSurface);
+    SDL_DestroyTexture(fpsTexture);
+    SDL_DestroyTexture(upsTexture);
+    TTF_CloseFont(arial);
 }
 
 Vector2 Game::pixelToWorld(Vector2Int px_pos)

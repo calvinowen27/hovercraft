@@ -21,13 +21,14 @@ class Game
 {
     private:
         static Game* instance;
+        const int UPDATES_PER_SEC = 120; // physics updates
+        int fps = 0, ups = 0; // frames per sec, updates per sec
+        int targetFPs = 60;
 
     public:
         std::mutex mutex_;
-        const int UPDATES_PER_SEC = 50; // physics updates
         std::vector<Object *> objs;
         int winWidth = 800, winHeight = 600;
-        int fps, ups; // frames per sec, updates per sec
         int ppm = 128; // pixels per meter, 128 by default
         SDL_Window* window;
         SDL_Renderer* renderer;
@@ -39,6 +40,7 @@ class Game
         Game();
         int gameInit();
         void go();
+        void runUpdates();
         void update();
         void draw();
         static Game* getInstance();
