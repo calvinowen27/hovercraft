@@ -72,7 +72,7 @@ int Game::gameInit()
         return EXIT_FAILURE;
     }
 
-    keyControls =
+    keybinds =
     {
         {"up", SDL_SCANCODE_W},
         {"down", SDL_SCANCODE_S},
@@ -98,19 +98,9 @@ void Game::go()
 {
     thread updateThread([this]{runUpdates();});
 
-    SDL_Event event;
-
     while(instance->running)
     {
-        if(SDL_PollEvent(&event))
-        {
-            if(event.type == SDL_QUIT || keyboardHandler.isPressed(keyControls["close"]))
-            {
-                running = false;
-            }
-        }
-
-        draw();
+        frameUpdate();
     }
 
     updateThread.join();
@@ -124,50 +114,86 @@ void Game::go()
 
 void Game::runUpdates()
 {
-
     while(instance->running)
     {
-        update();
+        physicsUpdate();
     }
 }
 
-void Game::update()
+void Game::frameUpdate()
 {
     using namespace chrono;
-    float updateTime = 1 / (float)UPDATES_PER_SEC;
-
+    float frameTime = 1 / (float)TARGET_FPS;
     chrono::_V2::system_clock::time_point startTime;
-    nanoseconds timeDiff((int)(updateTime * 1000000000));
+    nanoseconds timeDiff((int)(frameTime * 1000000000));
     nanoseconds execTime;
     nanoseconds sleepTime;
 
-    // startTime = high_resolution_clock::now();
+    startTime = high_resolution_clock::now();
+
+    SDL_Event event;
+
+    while(SDL_PollEvent(&event))
+    {
+        if(event.type == SDL_QUIT || keyboardHandler.isPressed(keybinds["close"]))
+        {
+            running = false;
+        }
+
+        if(event.type == SDL_KEYDOWN || event.type == SDL_KEYUP)
+        {
+            inputEvents.push(event);
+        }
+    }
+
+    draw();
+
+    execTime = duration_cast<nanoseconds>(high_resolution_clock::now() - startTime);
+
+    // sleep for any extra time we have in the update
+    sleepTime = timeDiff - execTime;
+
+    lock_guard<mutex> guard(mutex_);
+
+    fps = 1000000000 / timeDiff.count();
+    // fps = TARGET_FPS;
+
+    this_thread::sleep_for(sleepTime);
+}
+
+void Game::physicsUpdate()
+{
+    using namespace chrono;
+    float updateTime = 1 / (float)UPDATES_PER_SEC; // seconds
+
+    chrono::_V2::system_clock::time_point startTime;
+    nanoseconds timeDiff((int)(updateTime * 1000000000)); // convert updateTime to nanoseconds
+    nanoseconds execTime;
+    nanoseconds sleepTime;
+
+    startTime = high_resolution_clock::now();
+
     // obj.update();
     for(Object *obj : instance->objs)
     {
         obj->update(updateTime);
     }
 
-    // execTime = duration_cast<nanoseconds>(high_resolution_clock::now() - startTime);
+    execTime = duration_cast<nanoseconds>(high_resolution_clock::now() - startTime);
 
-    // cout << execTime.count() << endl;
-
-    // sleepTime = timeDiff - execTime;
+    // sleep for any extra time we have in the update
+    sleepTime = timeDiff - execTime;
 
     lock_guard<mutex> guard(mutex_);
 
-    // ups = 1000000000 / timeDiff.count();
-    ups = UPDATES_PER_SEC;
+    ups = 1000000000 / timeDiff.count();
+    // ups = UPDATES_PER_SEC;
 
-    this_thread::sleep_for(milliseconds((int)(updateTime * 1000)));
+    this_thread::sleep_for(sleepTime);
 }
 
 void Game::draw()
 {
-    using namespace chrono;
-
-    auto startTime = high_resolution_clock::now();
-
     SDL_RenderClear(renderer);
 
     SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
@@ -178,24 +204,23 @@ void Game::draw()
         obj->draw();
     }
 
-    auto execTime = duration_cast<nanoseconds>(high_resolution_clock::now() - startTime);
-
-    lock_guard<mutex> guard(mutex_);
-    fps = 1000000000 / execTime.count();
-    // fps = 1;
-
-    // cout << execTime.count() << endl;
-
     // draw fps and ups
+    int fpsW, fpsH, upsW, upsH;
+    char fpsText[10];
+    sprintf(fpsText, "FPS %d", fps);
+    char upsText[10];
+    sprintf(upsText, "UPS %d", ups);
     TTF_Font* arial = TTF_OpenFont("./content/arial.ttf", 24);
+    TTF_SizeUTF8(arial, fpsText, &fpsW, &fpsH);
+    TTF_SizeUTF8(arial, upsText, &upsW, &upsH);
     SDL_Color black = {0, 0, 0, 255};
-    SDL_Surface* fpsSurface = TTF_RenderText_Solid(arial, to_string(fps).c_str(), black);
+    SDL_Surface* fpsSurface = TTF_RenderText_Solid(arial, fpsText, black);
     SDL_Texture* fpsTexture = SDL_CreateTextureFromSurface(renderer, fpsSurface);
-    SDL_Surface* upsSurface = TTF_RenderText_Solid(arial, to_string(ups).c_str(), black);
+    SDL_Surface* upsSurface = TTF_RenderText_Solid(arial, upsText, black);
     SDL_Texture* upsTexture = SDL_CreateTextureFromSurface(renderer, upsSurface);
 
-    SDL_RenderCopy(renderer, fpsTexture, NULL, new SDL_Rect{0, 0, 100, 50});
-    SDL_RenderCopy(renderer, upsTexture, NULL, new SDL_Rect{0, 50, 100, 50});
+    SDL_RenderCopy(renderer, fpsTexture, NULL, new SDL_Rect{0, 0, fpsW, fpsH});
+    SDL_RenderCopy(renderer, upsTexture, NULL, new SDL_Rect{0, fpsH, upsW, upsH});
 
     SDL_RenderPresent(renderer);
 

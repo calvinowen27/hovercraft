@@ -2,10 +2,7 @@
 #define OBJECT_INCLUDE
 
 #include "../SDL2/SDL.h"
-// #include "Game.h"
 #include "Vector2.h"
-
-const Vector2 GRAVITY = Vector2(0, -9.8); // m/(s^2)
 
 class Game;
 
@@ -30,7 +27,6 @@ class Object
         void addForce(Vector2 force);
         Vector2 getPos();
         Vector2Int getPxPos();
-        Vector2 getVelocity();
         Vector2 getDims();
         Vector2Int getPxDims();
         SDL_Texture* getTexture();

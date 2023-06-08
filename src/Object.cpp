@@ -47,7 +47,5 @@ void Object::update(float time)
 {
     px_pos = game->worldToPixel(pos) - Vector2Int(px_dims.x / 2, px_dims.y);
 
-    // velocity += GRAVITY;
-
     pos += velocity * time;
 }
