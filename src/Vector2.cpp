@@ -3,6 +3,8 @@
 #include <sstream>
 
 /* Vector2 */
+Vector2 Vector2::zero;
+
 Vector2::Vector2()
 {
     this->x = 0;
@@ -21,7 +23,7 @@ Vector2::Vector2(const Vector2 &b)
     this->y = b.y;
 }
 
-float distance(const Vector2 &a, const Vector2 &b)
+float Vector2::distance(const Vector2 &a, const Vector2 &b)
 {
     return (float)(sqrt(pow(b.x-a.x, 2)+pow(b.y-a.y, 2)));
 }
@@ -33,12 +35,29 @@ bool Vector2::equals(const Vector2& b) const
 
 void Vector2::normalize()
 {
-    if(x != 0 && y != 0) *this /= (sqrt(pow(x, 2) + pow(y, 2)));
+    if(x != 0 || y != 0) *this /= sqrt(x*x + y*y);
+}
+
+Vector2 Vector2::normalized() const
+{
+    Vector2 result = *this;
+    result.normalize();
+    return result;
+}
+
+float Vector2::magnitude() const
+{
+    return (float)sqrt(x*x+y*y);
 }
 
 bool operator==(const Vector2& a, const Vector2& b)
 {
     return a.equals(b);
+}
+
+bool operator!=(const Vector2& a, const Vector2& b)
+{
+    return !a.equals(b);
 }
 
 Vector2 Vector2::operator+(const Vector2 &b) const

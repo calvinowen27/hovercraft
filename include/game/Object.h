@@ -14,6 +14,7 @@ class Object
                     // position is at bottom center of object
         Vector2Int px_pos; // pixel position, at top left of object
         Vector2 velocity; // m/s
+        Vector2 acceleration; // m/(s^2)
         Vector2 dims; // dimensions (m)
         Vector2Int px_dims; // pixel dimensions
 

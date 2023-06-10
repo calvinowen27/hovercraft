@@ -11,13 +11,17 @@ class Vector2
 {
     public:
         float x, y;
+        static Vector2 zero;
         Vector2();
         Vector2(float x, float y);
         Vector2(const Vector2& b);
-        friend float distance(Vector2 a, Vector2 b);
+        static float distance(const Vector2& a, const Vector2& b);
         bool equals(const Vector2& b) const;
         void normalize();
+        Vector2 normalized() const;
+        float magnitude() const;
         friend bool operator==(const Vector2& a, const Vector2& b);
+        friend bool operator!=(const Vector2& a, const Vector2& b);
         Vector2 operator+(const Vector2& b) const;
         Vector2 operator-(const Vector2& b) const;
         Vector2 operator*(const float& a) const;

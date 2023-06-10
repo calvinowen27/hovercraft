@@ -78,6 +78,7 @@ int Game::gameInit()
         {"down", SDL_SCANCODE_S},
         {"left", SDL_SCANCODE_A},
         {"right", SDL_SCANCODE_D},
+        {"boost", SDL_SCANCODE_LSHIFT},
         {"close", SDL_SCANCODE_ESCAPE}
     };
 

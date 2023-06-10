@@ -8,9 +8,9 @@
 class Player : public Object
 {
     public:
-        float moveSpeed;
-        float runSpeed = 7.5;
-        float walkSpeed = 3.5;
+        float baseSpeed = 3.5;
+        float boostSpeed = 7.5;
+        float accelerationRate = 10;
 
         Player();
         void draw() override;
