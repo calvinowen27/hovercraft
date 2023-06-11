@@ -9,7 +9,7 @@ Player::Player() : Object("./content/player.png", Vector2::zero, Vector2(1, 1))
 
 void Player::update(float time)
 {
-    acceleration = Vector2::zero;
+    acceleration_ = Vector2::zero;
 
     Vector2 dir;
 
@@ -24,22 +24,22 @@ void Player::update(float time)
     
     // dir.normalize();
 
-    Vector2 thrust;
+    Vector2 thrustForce;
     
     if(dir != Vector2::zero)
     {
         if(boost)
-            thrust = dir * accelerationRate * mass * 5.17;
+            thrustForce = dir * thrust_ * 5.17;
         else
-            thrust = dir * accelerationRate * mass;
+            thrustForce = dir * thrust_;
 
-        addForce(thrust);
+        addForce(thrustForce);
     }
 
-    if(acceleration != Vector2::zero)
+    if(acceleration_ != Vector2::zero)
     {
-        Vector2 newVel = velocity + acceleration * time;
-        Vector2 dragForce = velocity.getOne() * -0.5 * newVel * newVel * drag;
+        Vector2 newVel = velocity_ + acceleration_ * time;
+        Vector2 dragForce = velocity_.getOne() * -0.5 * newVel * newVel * dragCoeff_;
         addForce(dragForce);
     }
 
@@ -47,31 +47,31 @@ void Player::update(float time)
 
     if(dir != Vector2::zero)
     {
-        if(dir.x == 0) velocity.x *= 0.9;
-        if(dir.y == 0) velocity.y *= 0.9;
-        if(velocity.x > -0.1 && velocity.x < 0.1) velocity.x = 0;
-        if(velocity.y > -0.1 && velocity.y < 0.1) velocity.y = 0;
+        if(dir.x == 0) velocity_.x *= 0.9;
+        if(dir.y == 0) velocity_.y *= 0.9;
+        if(velocity_.x > -0.1 && velocity_.x < 0.1) velocity_.x = 0;
+        if(velocity_.y > -0.1 && velocity_.y < 0.1) velocity_.y = 0;
     }
     else
     {
-        velocity *= velocity.magnitude() > 0.2 ? 0.9 : 0;
+        velocity_ *= velocity_.magnitude() > 0.2 ? 0.9 : 0;
     }
 
-    game->cameraPos = pos + Vector2(0, dims.y / 2);
+    game->cameraPos = pos_ + Vector2(0, dims_.y / 2);
 }
 
 void Player::draw()
 {
     Object::draw();
 
-    // draw pos, velocity, and acceleration
+    // draw pos_, velocity_, and acceleration_
     int posW, posH, velW, velH, accW, accH;
     char posText[50];
-    sprintf(posText, "pos: (%f, %f)", pos.x, pos.y);
+    sprintf(posText, "pos: (%f, %f)", pos_.x, pos_.y);
     char velText[50];
-    sprintf(velText, "vel: (%f, %f)", velocity.x, velocity.y);
+    sprintf(velText, "vel: (%f, %f)", velocity_.x, velocity_.y);
     char accText[50];
-    sprintf(accText, "acc: (%f, %f)", acceleration.x, acceleration.y);
+    sprintf(accText, "acc: (%f, %f)", acceleration_.x, acceleration_.y);
     TTF_Font* arial = TTF_OpenFont("./content/arial.ttf", 24);
     TTF_SizeUTF8(arial, posText, &posW, &posH);
     TTF_SizeUTF8(arial, velText, &velW, &velH);

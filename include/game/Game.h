@@ -50,8 +50,8 @@ class Game
         void physicsUpdate();
         void draw();
         static Game* getInstance();
-        Vector2 pixelToWorld(Vector2Int px_pos);
-        Vector2Int worldToPixel(Vector2 pos);
+        Vector2 pixelToWorld(Vector2Int px_pos_);
+        Vector2Int worldToPixel(Vector2 pos_);
         friend bool operator==(const Game &a, const Game &b);
 };
 

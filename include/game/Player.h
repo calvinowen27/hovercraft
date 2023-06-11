@@ -8,10 +8,8 @@
 class Player : public Object
 {
     public:
-        float baseSpeed = 3.5;
-        float boostSpeed = 7.5;
-        float accelerationRate = 10;
-        float drag = 81.6;
+        float thrust_ = 750; // N
+        float dragCoeff_ = 81.6; // scalar
 
         Player();
         void draw() override;

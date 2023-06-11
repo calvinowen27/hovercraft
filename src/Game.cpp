@@ -132,11 +132,6 @@ void Game::frameUpdate()
 
     startTime = high_resolution_clock::now();
 
-    // for(int i = 0; i < 50000000; i++)
-    // {
-    //     float x = 5134 / 324;
-    // }
-
     SDL_Event event;
 
     while(SDL_PollEvent(&event))
