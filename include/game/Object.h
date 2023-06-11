@@ -18,6 +18,8 @@ class Object
         Vector2 dims; // dimensions (m)
         Vector2Int px_dims; // pixel dimensions
 
+        float mass = 50; // kg
+
         SDL_Texture* spriteTexture;
 
     public:

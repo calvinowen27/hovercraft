@@ -3,7 +3,7 @@
 
 std::map<SDL_Scancode, bool> inputState;
 
-Player::Player() : Object("./content/player.png", Vector2::zero, Vector2(0.5, 0.5))
+Player::Player() : Object("./content/player.png", Vector2::zero, Vector2(1, 1))
 {
 }
 
@@ -21,17 +21,48 @@ void Player::update(float time)
     if(inputState[game->keybinds["boost"]]) moveSpeed = boostSpeed;
     
     dir.normalize();
+
+    Vector2 thrust;
     
-    acceleration = dir * accelerationRate;
+    if(dir != Vector2::zero)
+    {
+        thrust = dir * accelerationRate * mass;
+        addForce(thrust);
+    }
+    
+    // acceleration = dir * accelerationRate;
+    // std::cout << thrust << std::endl;
+    
+    // Vector2 dragForce = velocity.normalized()*(float)(-0.5)*velocity*velocity*drag;
+
+
+    if(acceleration.x != 0)
+    {
+        float newVelX = velocity.x + acceleration.x * time;
+        Vector2 dragForce = Vector2((acceleration.x / abs(acceleration.x)) * -0.5 * newVelX * newVelX * drag, 0);
+        // if(thrust.x < 0 && dragForce.x > -thrust.x) dragForce.x = -thrust.x;
+        // if(thrust.x > 0 && dragForce.x < -thrust.x) dragForce.x = -thrust.x;
+
+        addForce(dragForce);
+
+        // std::cout << thrust << " " << dragForce << std::endl;
+        // std::cout << acceleration << std::endl;
+    }
+
+    // if(acceleration.x < 0.5 && acceleration.x > -0.5) acceleration.x = 0;
+
+    // if(velocity.x < baseSpeed && velocity.x + acceleration.x * time > baseSpeed) acceleration.x = (baseSpeed - velocity.x) / time;
 
     this->Object::update(time);
 
+
+
     if(dir != Vector2::zero)
     {
-        if(velocity.x > moveSpeed) velocity.x = moveSpeed;
-        if(velocity.x < -moveSpeed) velocity.x = -moveSpeed;
-        if(velocity.y > moveSpeed) velocity.y = moveSpeed;
-        if(velocity.y < -moveSpeed) velocity.y = -moveSpeed;
+        // if(velocity.x > moveSpeed) velocity.x = moveSpeed;
+        // if(velocity.x < -moveSpeed) velocity.x = -moveSpeed;
+        // if(velocity.y > moveSpeed) velocity.y = moveSpeed;
+        // if(velocity.y < -moveSpeed) velocity.y = -moveSpeed;
 
         if(dir.x == 0) velocity.x *= 0.9;
         if(dir.y == 0) velocity.y *= 0.9;

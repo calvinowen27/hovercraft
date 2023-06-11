@@ -51,3 +51,8 @@ void Object::update(float time)
 
     velocity += acceleration * time;
 }
+
+void Object::addForce(Vector2 force)
+{
+    acceleration += force / mass;
+}

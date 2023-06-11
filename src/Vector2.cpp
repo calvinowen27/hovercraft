@@ -75,6 +75,11 @@ Vector2 Vector2::operator*(const float &a) const
     return Vector2(x*a, y*a);
 }
 
+Vector2 Vector2::operator*(const Vector2& b) const
+{
+    return Vector2(x*b.x, y*b.y);
+}
+
 Vector2 Vector2::operator/(const float &a) const
 {
     return Vector2(x/a, y/a);
