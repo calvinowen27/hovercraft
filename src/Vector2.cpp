@@ -50,6 +50,12 @@ float Vector2::magnitude() const
     return (float)sqrt(x*x+y*y);
 }
 
+Vector2 Vector2::getOne() const
+{
+    Vector2 result = Vector2(x == 0 ? 0 : x / fabs(x), y == 0 ? 0 : y / fabs(y));
+    return result;
+}
+
 bool operator==(const Vector2& a, const Vector2& b)
 {
     return a.equals(b);
@@ -62,7 +68,7 @@ bool operator!=(const Vector2& a, const Vector2& b)
 
 Vector2 Vector2::operator+(const Vector2 &b) const
 {
-    return Vector2(b.x+x, b.y+y);
+    return Vector2(x+b.x, y+b.y);
 }
 
 Vector2 Vector2::operator-(const Vector2 &b) const
@@ -83,6 +89,11 @@ Vector2 Vector2::operator*(const Vector2& b) const
 Vector2 Vector2::operator/(const float &a) const
 {
     return Vector2(x/a, y/a);
+}
+
+Vector2 Vector2::operator/(const Vector2& b) const
+{
+    return Vector2(x/b.x, y/b.y);
 }
 
 Vector2& Vector2::operator=(const Vector2 &b)

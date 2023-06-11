@@ -132,6 +132,11 @@ void Game::frameUpdate()
 
     startTime = high_resolution_clock::now();
 
+    // for(int i = 0; i < 50000000; i++)
+    // {
+    //     float x = 5134 / 324;
+    // }
+
     SDL_Event event;
 
     while(SDL_PollEvent(&event))
@@ -156,10 +161,9 @@ void Game::frameUpdate()
 
     lock_guard<mutex> guard(mutex_);
 
-    fps = 1000000000 / timeDiff.count();
-    // fps = TARGET_FPS;
+    fps = 1000000000 / (sleepTime.count() > 0 ? timeDiff.count() : execTime.count());
 
-    this_thread::sleep_for(sleepTime);
+    if(sleepTime.count() > 0) this_thread::sleep_for(sleepTime);
 }
 
 void Game::physicsUpdate()
@@ -187,10 +191,9 @@ void Game::physicsUpdate()
 
     lock_guard<mutex> guard(mutex_);
 
-    ups = 1000000000 / timeDiff.count();
-    // ups = UPDATES_PER_SEC;
+    ups = 1000000000 / (sleepTime.count() > 0 ? timeDiff.count() : execTime.count());
 
-    this_thread::sleep_for(sleepTime);
+    if(sleepTime.count() > 0) this_thread::sleep_for(sleepTime);
 }
 
 void Game::draw()
