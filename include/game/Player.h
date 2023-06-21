@@ -8,11 +8,11 @@
 class Player : public Object
 {
     public:
-        float thrust_ = 750; // N
-        float dragCoeff_ = 81.6; // scalar
+        float thrust = 750; // N
+        float dragCoeff = 81.6; // scalar
 
-        Player();
-        void draw() override;
+        Player(Vector2 pos);
+        void draw(SDL_Renderer *pRenderer) override;
         void update(float time) override;
         void processInputs();
 };

@@ -1,18 +1,19 @@
 #define SDL_MAIN_HANDLED
 
 #include "../include/game/Game.h"
+#include "../include/game/TextElement.h"
 #include <thread>
 #include <chrono>
 
 using namespace std;
 
-Game* Game::instance = nullptr;
+Game* Game::_instance;
 
 int main()
 {
     if(Game::getInstance()->gameInit()) return EXIT_FAILURE;
 
-    Game::getInstance()->go();
+    Game::getInstance()->start();
 
     return 0;
 }
@@ -23,22 +24,19 @@ Game::Game()
 
 Game* Game::getInstance()
 {
-    if(instance == nullptr)
+    if(_instance == nullptr)
     {
-        instance = new Game();
+        // std::cout << "bruh" << std::endl;
+        _instance = new Game();
     }
 
-    return instance;
+    // std::cout << "return instance" << std::endl;
+    return _instance;
 }
 
 int Game::gameInit()
 {
     SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_EVENTS);
-    // if(!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_EVENTS))
-    // {
-    //     cerr << "Error with SDL initialization: " << SDL_GetError() << endl;
-    //     return EXIT_FAILURE;
-    // }
 
     if(!IMG_Init(IMG_INIT_PNG))
     {
@@ -48,26 +46,22 @@ int Game::gameInit()
 
     TTF_Init();
 
-    // if(!TTF_Init())
-    // {
-    //     cerr << "Error with SDL_ttf initialization: " << TTF_GetError() << endl;
-    //     return EXIT_FAILURE;
-    // }
-
-    window = SDL_CreateWindow("hovercraft", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 
+    pWindow = SDL_CreateWindow("hovercraft", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 
                                         winWidth, winHeight, SDL_WINDOW_ALLOW_HIGHDPI);
+
+    // SDL_SetWindowFullscreen(pWindow, SDL_WINDOW_FULLSCREEN_DESKTOP);
     
-    if (window == NULL)
+    if (pWindow == NULL)
     {
         cerr << "Could not create window: " << SDL_GetError() << endl;
         return EXIT_FAILURE;
     }
 
-    renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
-    if (renderer == NULL)
+    pRenderer = SDL_CreateRenderer(pWindow, -1, SDL_RENDERER_ACCELERATED);
+    if (pRenderer == NULL)
     {
         cerr << "Failed to create renderer " << SDL_GetError() << endl;
-        SDL_DestroyWindow(window);
+        SDL_DestroyWindow(pWindow);
         SDL_Quit();
         return EXIT_FAILURE;
     }
@@ -82,40 +76,44 @@ int Game::gameInit()
         {"close", SDL_SCANCODE_ESCAPE}
     };
 
-    Player* player = new Player();
-    // objs.push_back(player);
+    pContentManager = new ContentManager();
+    pContentManager->loadContent();
 
-    Object* block1 = new Object("./content/blueblock.png", Vector2(1, 1), Vector2(1, 1));
-    Object* block2 = new Object("./content/blueblock.png", Vector2(2, 1), Vector2(1, 1));
-    Object* block3 = new Object("./content/blueblock.png", Vector2(3, 1), Vector2(1, 1));
-    Object* block4 = new Object("./content/blueblock.png", Vector2(4, 1), Vector2(1, 1));
-    Object* block5 = new Object("./content/blueblock.png", Vector2(5, 1), Vector2(1, 1));
-    Object* block6 = new Object("./content/blueblock.png", Vector2(6, 1), Vector2(1, 1));
+    SDL_Color black{0, 0, 0, 255};
+
+    TextElement *test = new TextElement("this is a test", "arial.ttf", black, Vector2(0.25, 0.25), Vector2(0.1, 0.1));
+
+    Player *player = new Player(Vector2::zero);
+
+    for(int i = 0; i < 100; i+=2)
+    {
+        Object *pBlock = new Object("blueblock.png", Vector2(i, -11.5), Vector2(1, 1));
+    }
 
     return 0;
 }
 
-void Game::go()
+void Game::start()
 {
-    thread updateThread([this]{runUpdates();});
+    thread updateThread([this]{runPhysics();});
 
-    while(instance->running)
+    while(_instance->running)
     {
         frameUpdate();
     }
 
     updateThread.join();
 
-    SDL_DestroyRenderer(renderer);
-    SDL_DestroyWindow(window);
+    SDL_DestroyRenderer(pRenderer);
+    SDL_DestroyWindow(pWindow);
     TTF_Quit();
     IMG_Quit();
     SDL_Quit();
 }
 
-void Game::runUpdates()
+void Game::runPhysics()
 {
-    while(instance->running)
+    while(_instance->running)
     {
         physicsUpdate();
     }
@@ -174,7 +172,7 @@ void Game::physicsUpdate()
     startTime = high_resolution_clock::now();
 
     // obj.update();
-    for(Object *obj : instance->objs)
+    for(Object *obj : _instance->objs)
     {
         obj->update(updateTime);
     }
@@ -193,49 +191,56 @@ void Game::physicsUpdate()
 
 void Game::draw()
 {
-    SDL_RenderClear(renderer);
+    SDL_RenderClear(pRenderer);
 
-    SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+    SDL_SetRenderDrawColor(pRenderer, 255, 255, 255, 255);
 
     // obj.draw();
     for(Object *obj : objs)
     {
-        obj->draw();
+        obj->draw(pRenderer);
+    }
+
+    // uiElement.draw();
+    for(UIElement *el : uiElements)
+    {
+        el->update();
+        el->draw(pRenderer);
     }
 
     // draw fps and ups
-    int fpsW, fpsH, upsW, upsH;
-    char fpsText[10];
-    sprintf(fpsText, "FPS %d", fps);
-    char upsText[10];
-    sprintf(upsText, "UPS %d", ups);
-    TTF_Font* arial = TTF_OpenFont("./content/arial.ttf", 24);
-    TTF_SizeUTF8(arial, fpsText, &fpsW, &fpsH);
-    TTF_SizeUTF8(arial, upsText, &upsW, &upsH);
-    SDL_Color black = {0, 0, 0, 255};
-    SDL_Surface* fpsSurface = TTF_RenderText_Solid(arial, fpsText, black);
-    SDL_Texture* fpsTexture = SDL_CreateTextureFromSurface(renderer, fpsSurface);
-    SDL_Surface* upsSurface = TTF_RenderText_Solid(arial, upsText, black);
-    SDL_Texture* upsTexture = SDL_CreateTextureFromSurface(renderer, upsSurface);
+    // int fpsW, fpsH, upsW, upsH;
+    // char fpsText[10];
+    // sprintf(fpsText, "FPS %d", fps);
+    // char upsText[10];
+    // sprintf(upsText, "UPS %d", ups);
+    // TTF_Font* arial = TTF_OpenFont("./content/arial.ttf", 24);
+    // TTF_SizeUTF8(arial, fpsText, &fpsW, &fpsH);
+    // TTF_SizeUTF8(arial, upsText, &upsW, &upsH);
+    // SDL_Color black = {0, 0, 0, 255};
+    // SDL_Surface* fpsSurface = TTF_RenderText_Solid(arial, fpsText, black);
+    // SDL_Texture* fpsTexture = SDL_CreateTextureFromSurface(pRenderer, fpsSurface);
+    // SDL_Surface* upsSurface = TTF_RenderText_Solid(arial, upsText, black);
+    // SDL_Texture* upsTexture = SDL_CreateTextureFromSurface(pRenderer, upsSurface);
 
-    SDL_RenderCopy(renderer, fpsTexture, NULL, new SDL_Rect{0, 0, fpsW, fpsH});
-    SDL_RenderCopy(renderer, upsTexture, NULL, new SDL_Rect{0, fpsH, upsW, upsH});
+    // SDL_RenderCopy(pRenderer, fpsTexture, NULL, new SDL_Rect{0, 0, fpsW, fpsH});
+    // SDL_RenderCopy(pRenderer, upsTexture, NULL, new SDL_Rect{0, fpsH, upsW, upsH});
 
-    SDL_RenderPresent(renderer);
+    SDL_RenderPresent(pRenderer);
 
-    SDL_FreeSurface(fpsSurface);
-    SDL_FreeSurface(upsSurface);
-    SDL_DestroyTexture(fpsTexture);
-    SDL_DestroyTexture(upsTexture);
-    TTF_CloseFont(arial);
+    // SDL_FreeSurface(fpsSurface);
+    // SDL_FreeSurface(upsSurface);
+    // SDL_DestroyTexture(fpsTexture);
+    // SDL_DestroyTexture(upsTexture);
+    // TTF_CloseFont(arial);
 }
 
-Vector2 Game::pixelToWorld(Vector2Int px_pos)
+Vector2 Game::pixelToWorld(Vector2Int pxPos)
 {
-    px_pos -= Vector2Int(winWidth / 2, winHeight / 2);
-    px_pos.y -= winHeight;
-    px_pos /= ppm;
-    return (Vector2)px_pos + cameraPos;
+    pxPos -= Vector2Int(winWidth / 2, winHeight / 2);
+    pxPos.y -= winHeight;
+    pxPos /= ppm;
+    return (Vector2)pxPos + cameraPos;
 }
 
 Vector2Int Game::worldToPixel(Vector2 pos)

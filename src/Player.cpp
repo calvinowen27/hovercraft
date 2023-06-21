@@ -3,24 +3,24 @@
 
 std::map<SDL_Scancode, bool> inputState;
 
-Player::Player() : Object("./content/player.png", Vector2::zero, Vector2(1, 1))
+Player::Player(Vector2 pos) : Object("player.png", pos, Vector2(0.5, 0.5))
 {
 }
 
 void Player::update(float time)
 {
-    acceleration_ = Vector2::zero;
+    _acceleration = Vector2::zero;
 
     Vector2 dir;
 
     processInputs();
 
-    if(inputState[game->keybinds["up"]]) dir.y += 1; // up
-    if(inputState[game->keybinds["down"]]) dir.y -= 1; // down
-    if(inputState[game->keybinds["right"]]) dir.x += 1; // right
-    if(inputState[game->keybinds["left"]]) dir.x -= 1; // left
+    if(inputState[_pGame->keybinds["up"]]) dir.y += 1; // up
+    if(inputState[_pGame->keybinds["down"]]) dir.y -= 1; // down
+    if(inputState[_pGame->keybinds["right"]]) dir.x += 1; // right
+    if(inputState[_pGame->keybinds["left"]]) dir.x -= 1; // left
 
-    bool boost = inputState[game->keybinds["boost"]];
+    bool boost = inputState[_pGame->keybinds["boost"]];
     
     // dir.normalize();
 
@@ -29,83 +29,95 @@ void Player::update(float time)
     if(dir != Vector2::zero)
     {
         if(boost)
-            thrustForce = dir * thrust_ * 5.17;
+            thrustForce = dir * thrust * 5.17;
         else
-            thrustForce = dir * thrust_;
+            thrustForce = dir * thrust;
 
         addForce(thrustForce);
     }
 
-    if(acceleration_ != Vector2::zero)
+    if(Vector2::distance(_acceleration, Vector2(0, -9.8)) > 0.5)
     {
-        Vector2 newVel = velocity_ + acceleration_ * time;
-        Vector2 dragForce = velocity_.getOne() * -0.5 * newVel * newVel * dragCoeff_;
+        Vector2 newVel = _velocity + _acceleration * time;
+        Vector2 dragForce = _velocity.getOne() * -0.5 * newVel * newVel * dragCoeff;
+        dragForce.y = 0;
         addForce(dragForce);
     }
 
+    addForce(Vector2(0, -9.8*_mass));
+
     this->Object::update(time);
 
-    if(dir != Vector2::zero)
+    if(_pos.y < -10)
     {
-        if(dir.x == 0) velocity_.x *= 0.9;
-        if(dir.y == 0) velocity_.y *= 0.9;
-        if(velocity_.x > -0.1 && velocity_.x < 0.1) velocity_.x = 0;
-        if(velocity_.y > -0.1 && velocity_.y < 0.1) velocity_.y = 0;
-    }
-    else
-    {
-        velocity_ *= velocity_.magnitude() > 0.2 ? 0.9 : 0;
+        _pos.y = -10;
+        _velocity.y = 0;
     }
 
-    game->cameraPos = pos_ + Vector2(0, dims_.y / 2);
+    if(_pos.y < -9 && _pos.x > 2)
+    {
+        _pos.y = -9;
+        _velocity.y = 0;
+    }
+
+    // if(Vector2::distance(_acceleration, Vector2(0, -9.8)) < 0.5)
+    // {
+    //     if(dir.x == 0) _velocity.x *= 0.9;
+    //     if(dir.y == 0) _velocity.y *= 0.9;
+    // }
+        
+    if(_velocity.x > -0.05 && _velocity.x < 0.05) _velocity.x = 0;
+    if(_velocity.y > -0.05 && _velocity.y < 0.05) _velocity.y = 0;
+
+    _pGame->cameraPos = _pos + Vector2(0, _dims.y / 2);
 }
 
-void Player::draw()
+void Player::draw(SDL_Renderer *pRenderer)
 {
-    Object::draw();
+    Object::draw(pRenderer);
 
-    // draw pos_, velocity_, and acceleration_
-    int posW, posH, velW, velH, accW, accH;
-    char posText[50];
-    sprintf(posText, "pos: (%f, %f)", pos_.x, pos_.y);
-    char velText[50];
-    sprintf(velText, "vel: (%f, %f)", velocity_.x, velocity_.y);
-    char accText[50];
-    sprintf(accText, "acc: (%f, %f)", acceleration_.x, acceleration_.y);
-    TTF_Font* arial = TTF_OpenFont("./content/arial.ttf", 24);
-    TTF_SizeUTF8(arial, posText, &posW, &posH);
-    TTF_SizeUTF8(arial, velText, &velW, &velH);
-    TTF_SizeUTF8(arial, accText, &accW, &accH);
-    SDL_Color black = {0, 0, 0, 255};
-    SDL_Surface* posSurface = TTF_RenderText_Solid(arial, posText, black);
-    SDL_Texture* posTexture = SDL_CreateTextureFromSurface(game->renderer, posSurface);
-    SDL_Surface* velSurface = TTF_RenderText_Solid(arial, velText, black);
-    SDL_Texture* velTexture = SDL_CreateTextureFromSurface(game->renderer, velSurface);
-    SDL_Surface* accSurface = TTF_RenderText_Solid(arial, accText, black);
-    SDL_Texture* accTexture = SDL_CreateTextureFromSurface(game->renderer, accSurface);
+    // draw pos, velocity, and acceleration
+    // int posW, posH, velW, velH, accW, accH;
+    // char posText[50];
+    // sprintf(posText, "pos: (%f, %f)", _pos.x, _pos.y);
+    // char velText[50];
+    // sprintf(velText, "vel: (%f, %f)", _velocity.x, _velocity.y);
+    // char accText[50];
+    // sprintf(accText, "acc: (%f, %f)", _acceleration.x, _acceleration.y);
+    // TTF_Font *arial = TTF_OpenFont("./content/arial.ttf", 24);
+    // TTF_SizeUTF8(arial, posText, &posW, &posH);
+    // TTF_SizeUTF8(arial, velText, &velW, &velH);
+    // TTF_SizeUTF8(arial, accText, &accW, &accH);
+    // SDL_Color black = {0, 0, 0, 255};
+    // SDL_Surface* posSurface = TTF_RenderText_Solid(arial, posText, black);
+    // SDL_Texture* posTexture = SDL_CreateTextureFromSurface(_pGame->pRenderer, posSurface);
+    // SDL_Surface* velSurface = TTF_RenderText_Solid(arial, velText, black);
+    // SDL_Texture* velTexture = SDL_CreateTextureFromSurface(_pGame->pRenderer, velSurface);
+    // SDL_Surface* accSurface = TTF_RenderText_Solid(arial, accText, black);
+    // SDL_Texture* accTexture = SDL_CreateTextureFromSurface(_pGame->pRenderer, accSurface);
 
-    SDL_RenderCopy(game->renderer, posTexture, NULL, new SDL_Rect{300, 0, posW, posH});
-    SDL_RenderCopy(game->renderer, velTexture, NULL, new SDL_Rect{300, posH, velW, velH});
-    SDL_RenderCopy(game->renderer, accTexture, NULL, new SDL_Rect{300, posH+velH, accW, accH});
+    // SDL_RenderCopy(_pGame->pRenderer, posTexture, NULL, new SDL_Rect{300, 0, posW, posH});
+    // SDL_RenderCopy(_pGame->pRenderer, velTexture, NULL, new SDL_Rect{300, posH, velW, velH});
+    // SDL_RenderCopy(_pGame->pRenderer, accTexture, NULL, new SDL_Rect{300, posH+velH, accW, accH});
 
-    SDL_FreeSurface(posSurface);
-    SDL_FreeSurface(velSurface);
-    SDL_FreeSurface(accSurface);
-    SDL_DestroyTexture(posTexture);
-    SDL_DestroyTexture(velTexture);
-    SDL_DestroyTexture(accTexture);
-    TTF_CloseFont(arial);
+    // SDL_FreeSurface(posSurface);
+    // SDL_FreeSurface(velSurface);
+    // SDL_FreeSurface(accSurface);
+    // SDL_DestroyTexture(posTexture);
+    // SDL_DestroyTexture(velTexture);
+    // SDL_DestroyTexture(accTexture);
+    // TTF_CloseFont(arial);
 }
 
 void Player::processInputs()
 {
     SDL_Event event;
-    while(game->inputEvents.size())
+    while(_pGame->inputEvents.size())
     {
-        event = game->inputEvents.front();
+        event = _pGame->inputEvents.front();
 
         inputState[event.key.keysym.scancode] = (event.type == SDL_KEYDOWN);
 
-        game->inputEvents.pop();
+        _pGame->inputEvents.pop();
     }
 }

@@ -1,87 +1,70 @@
 #include "../include/game/Object.h"
 #include "../include/game/Game.h"
+#include "../include/game/ContentManager.h"
 #include "../include/SDL2/SDL.h"
 #include "../include/SDL2/SDL_image.h"
 
-Object::Object(std::string texturePath, Vector2 pos, Vector2 dims, bool doCollisions)
+Object::Object(std::string textureName, Vector2 pos, Vector2 dims, bool doCollisions)
 {
-    game = Game::getInstance();
-    SDL_Surface* spriteSurface = IMG_Load(texturePath.c_str());
-    // SDL_Surface* spriteSurface = IMG_Load("./content/smiley.png");
-    if(spriteSurface == NULL)
-    {
-        std::cerr << "Failed to load image to surface: " << IMG_GetError() << std::endl;
-        return;
-    }
+    _pGame = Game::getInstance();
+    _pContentManager = _pGame->pContentManager;
+    
+    _pTexture = _pContentManager->getTexture(textureName);
 
-    texture_ = SDL_CreateTextureFromSurface(game->renderer, spriteSurface);
-    if(texture_ == NULL)
-    {
-        std::cerr << "Failed to load texture from surface: " << IMG_GetError() << std::endl;
-        return;
-    }
+    _pos = pos;
+    _dims = dims;
+    _pxDims = (Vector2Int)(dims * _pGame->ppm);
+    _pxPos = _pGame->worldToPixel(pos) - Vector2Int(_pxDims.x / 2, _pxDims.y);
+    _doCollisions = doCollisions;
 
-    this->pos_ = pos;
-    this->dims_ = dims;
-    this->pxDims_ = (Vector2Int)(dims * game->ppm);
-    this->pxPos_ = game->worldToPixel(pos_) - Vector2Int(pxDims_.x / 2, pxDims_.y);
-    this->doCollisions_ = doCollisions;
+    _spriteRect = SDL_Rect{_pxPos.x, _pxPos.y, _pxDims.x, _pxDims.y};
 
-    spriteRect_ = SDL_Rect{pxPos_.x, pxPos_.y, pxDims_.x, pxDims_.y};
-
-    SDL_FreeSurface(spriteSurface);
-
-    game->objs.push_back(this);
+    _pGame->objs.push_back(this);
 }
 
-Object::~Object()
+void Object::draw(SDL_Renderer *pRenderer)
 {
-    SDL_DestroyTexture(texture_);
-}
+    _spriteRect.x = _pxPos.x;
+    _spriteRect.y = _pxPos.y;
 
-void Object::draw()
-{
-    spriteRect_.x = pxPos_.x;
-    spriteRect_.y = pxPos_.y;
-
-    SDL_RenderCopy(game->renderer, texture_, NULL, &spriteRect_);
+    SDL_RenderCopy(pRenderer, _pTexture, NULL, &_spriteRect);
 }
 
 void Object::update(float time)
 {
-    pxPos_ = game->worldToPixel(pos_) - Vector2Int(pxDims_.x / 2, pxDims_.y);
+    _pxPos = _pGame->worldToPixel(_pos) - Vector2Int(_pxDims.x / 2, _pxDims.y);
 
-    Vector2 nextPos = pos_ + velocity_ * time;
+    Vector2 nextPos = _pos + _velocity * time;
 
-    for(auto other : game->objs)
+    for(auto other : _pGame->objs)
     {
-        if(other == this || !other->doCollisions_) continue;
+        if(other == this || !other->_doCollisions) continue;
 
         if(willTouch(nextPos, *other))
         {
-            velocity_ = velocity_.normalized() * (Vector2::distance(pos_, other->pos_) - Vector2::distance(nextPos, other->pos_));
-            nextPos = pos_ + velocity_ * time;
+            _velocity = _velocity.normalized() * (Vector2::distance(_pos, other->_pos) - Vector2::distance(nextPos, other->_pos));
+            nextPos = _pos + _velocity * time;
         }
     }
 
-    pos_ += velocity_ * time;
+    _pos += _velocity * time;
 
-    velocity_ += acceleration_ * time;
+    _velocity += _acceleration * time;
 }
 
 void Object::addForce(Vector2 force)
 {
-    acceleration_ += force / mass_;
+    _acceleration += force / _mass;
 }
 
 bool Object::isTouching(const Object other) const
 {
-    return !(pos_.x > other.pos_.x + other.dims_.x || pos_.x + dims_.x < other.pos_.x ||
-            pos_.y > other.pos_.y + other.dims_.y || pos_.y + dims_.y < other.pos_.y);
+    return !(_pos.x > other._pos.x + other._dims.x || _pos.x + _dims.x < other._pos.x ||
+            _pos.y > other._pos.y + other._dims.y || _pos.y + _dims.y < other._pos.y);
 }
 
 bool Object::willTouch(Vector2 newPos, const Object& other) const
 {
-    return !(newPos.x > other.pos_.x + other.dims_.x || newPos.x + dims_.x < other.pos_.x ||
-            newPos.y > other.pos_.y + other.dims_.y || newPos.y + dims_.y < other.pos_.y);
+    return !(newPos.x > other._pos.x + other._dims.x || newPos.x + _dims.x < other._pos.x ||
+            newPos.y > other._pos.y + other._dims.y || newPos.y + _dims.y < other._pos.y);
 }

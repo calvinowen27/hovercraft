@@ -5,37 +5,38 @@
 #include "Vector2.h"
 
 class Game;
+class ContentManager;
 
 class Object
 {
     protected:
-        Game* game;
-        Vector2 pos_; // m --> 128 pixels/m default
+        Game *_pGame;
+        ContentManager *_pContentManager;
+        Vector2 _pos; // m --> 128 pixels/m default
                     // position is at bottom center of object
-        Vector2Int pxPos_; // pixel position, at top left of object
-        Vector2 velocity_; // m/s
-        Vector2 acceleration_; // m/(s^2)
-        Vector2 dims_; // dimensions (m)
-        Vector2Int pxDims_; // pixel dimensions
+        Vector2Int _pxPos; // pixel position, at top left of object
+        Vector2 _velocity; // m/s
+        Vector2 _acceleration; // m/(s^2)
+        Vector2 _dims; // dimensions (m)
+        Vector2Int _pxDims; // pixel dimensions
 
-        float mass_ = 50; // kg
+        float _mass = 50; // kg
 
-        bool doCollisions_ = true;
+        bool _doCollisions = true;
 
-        SDL_Texture* texture_;
-        SDL_Rect spriteRect_;
+        SDL_Texture *_pTexture;
+        SDL_Rect _spriteRect;
 
     public:
-        Object(std::string texturePath, Vector2 pos, Vector2 dims, bool doCollisions=true);
-        ~Object();
-        virtual void draw();
+        Object(std::string textureName, Vector2 pos, Vector2 dims, bool doCollisions=true);
+        virtual void draw(SDL_Renderer *pRenderer);
         virtual void update(float time);
         void addForce(Vector2 force);
-        Vector2 pos();
-        Vector2Int pxPos();
-        Vector2 dims();
-        Vector2Int pxDims();
-        SDL_Texture* texture();
+        Vector2 getPos();
+        Vector2Int getPxPos();
+        Vector2 getDims();
+        Vector2Int getPxDims();
+        SDL_Texture* getTexture();
         bool isTouching(const Object other) const;
         bool willTouch(Vector2 newPos, const Object& other) const;
 };

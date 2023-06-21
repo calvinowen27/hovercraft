@@ -13,45 +13,51 @@
 #include "Vector2.h"
 #include "Object.h"
 #include "Player.h"
+#include "ContentManager.h"
+#include "UIElement.h"
 
 class Object;
+class UIElement;
 class KeyboardHandler;
 class Player;
 
 class Game
 {
     private:
-        static Game* instance;
         const int UPDATES_PER_SEC = 60; // physics updates
-        const int TARGET_FPS = 120;
+        const int TARGET_FPS = 60;
+
+        static Game* _instance;
         int fps = 0, ups = 0; // frames per sec, updates per sec
 
     public:
         std::mutex mutex_;
         std::vector<Object *> objs;
+        std::vector<UIElement *> uiElements;
         std::map<std::string, SDL_Scancode> keybinds;
         std::queue<SDL_Event> inputEvents;
 
+        ContentManager *pContentManager;
         KeyboardHandler keyboardHandler;
 
-        int winWidth = 800, winHeight = 600;
-        int ppm = 128; // pixels per meter, 128 by default
-        SDL_Window* window;
-        SDL_Renderer* renderer;
+        int winWidth = 2500, winHeight = 1750;
+        int ppm = 256; // pixels per meter, 128 by default
+        SDL_Window* pWindow;
+        SDL_Renderer* pRenderer;
 
         Vector2 cameraPos;
         bool running = true;
 
+        static Game* getInstance();
         Game();
         int gameInit();
-        void go();
-        void runUpdates();
+        void start();
+        void runPhysics();
         void frameUpdate();
         void physicsUpdate();
         void draw();
-        static Game* getInstance();
         Vector2 pixelToWorld(Vector2Int px_pos_);
-        Vector2Int worldToPixel(Vector2 pos_);
+        Vector2Int worldToPixel(Vector2 pos);
         friend bool operator==(const Game &a, const Game &b);
 };
 

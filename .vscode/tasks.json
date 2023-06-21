@@ -14,7 +14,7 @@
         {
             "label": "build release",
             "type": "shell",
-            "command": "make && ./../build/release/hovercraft",
+            "command": "make;./../build/release/hovercraft",
             "group":
             {
                 "kind": "build",

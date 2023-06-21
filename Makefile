@@ -18,8 +18,8 @@ debug: $(OBJECTS) $(DBGDIR)
 
 release: $(OBJECTS) $(RLSDIR)
 	rm -rf $(RLSDIR)content
-	mkdir $(RLSDIR)content
-	cp -r content/ $(RLSDIR)
+	mkdir -p $(RLSDIR)content
+	cp -r content/ $(RLSDIR)content
 	$(CC) $(OBJECTS) $(LDFLAGS) -o $(RLSDIR)$(EXECUTABLE)
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.cpp $(OBJDIR)
