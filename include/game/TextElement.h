@@ -10,6 +10,8 @@ class TextElement : public UIElement
         std::string _text;
         TTF_Font *_pFont;
 
+        float _pxTextWidth;
+        SDL_Rect _textRect;
         SDL_Surface *_surface = nullptr;
         SDL_Texture *_texture = nullptr;
         SDL_Color _color;

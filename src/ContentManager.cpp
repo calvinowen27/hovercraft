@@ -60,7 +60,7 @@ void ContentManager::loadFonts()
     {
         currPath = dirEntry.path().filename().string();
 
-        font = TTF_OpenFont(dirEntry.path().c_str(), 24);
+        font = TTF_OpenFont(dirEntry.path().c_str(), 51);
         if(font == NULL)
         {
             std::cerr << "ContentManager loadFonts(): Failed to open font: " << TTF_GetError() << std::endl;

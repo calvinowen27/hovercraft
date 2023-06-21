@@ -2,12 +2,17 @@
 
 #include "../include/game/Game.h"
 #include "../include/game/TextElement.h"
+#include "../include/game/Object.h"
+#include "../include/game/Player.h"
+#include "../include/game/UIElement.h"
+#include "../include/game/UIManager.h"
+
 #include <thread>
 #include <chrono>
 
 using namespace std;
 
-Game* Game::_instance;
+Game* Game::_pInstance;
 
 int main()
 {
@@ -24,14 +29,12 @@ Game::Game()
 
 Game* Game::getInstance()
 {
-    if(_instance == nullptr)
+    if(_pInstance == nullptr)
     {
-        // std::cout << "bruh" << std::endl;
-        _instance = new Game();
+        _pInstance = new Game();
     }
 
-    // std::cout << "return instance" << std::endl;
-    return _instance;
+    return _pInstance;
 }
 
 int Game::gameInit()
@@ -79,9 +82,13 @@ int Game::gameInit()
     pContentManager = new ContentManager();
     pContentManager->loadContent();
 
-    SDL_Color black{0, 0, 0, 255};
+    pUIManager = UIManager::getInstance();
+    pUIManager->init();
 
-    TextElement *test = new TextElement("this is a test", "arial.ttf", black, Vector2(0.25, 0.25), Vector2(0.1, 0.1));
+    // SDL_Color black{0, 0, 0, 255};
+
+    // TextElement *test = new TextElement("this is a test", "arial.ttf", black, Vector2::zero, Vector2(0.1125, 0.025));
+    // test->setText("hi");
 
     Player *player = new Player(Vector2::zero);
 
@@ -97,7 +104,7 @@ void Game::start()
 {
     thread updateThread([this]{runPhysics();});
 
-    while(_instance->running)
+    while(_pInstance->running)
     {
         frameUpdate();
     }
@@ -113,7 +120,7 @@ void Game::start()
 
 void Game::runPhysics()
 {
-    while(_instance->running)
+    while(_pInstance->running)
     {
         physicsUpdate();
     }
@@ -145,6 +152,8 @@ void Game::frameUpdate()
         }
     }
 
+    pUIManager->update();
+
     draw();
 
     execTime = duration_cast<nanoseconds>(high_resolution_clock::now() - startTime);
@@ -154,7 +163,7 @@ void Game::frameUpdate()
 
     lock_guard<mutex> guard(mutex_);
 
-    fps = 1000000000 / (sleepTime.count() > 0 ? timeDiff.count() : execTime.count());
+    _fps = 1000000000 / (sleepTime.count() > 0 ? timeDiff.count() : execTime.count());
 
     if(sleepTime.count() > 0) this_thread::sleep_for(sleepTime);
 }
@@ -172,7 +181,7 @@ void Game::physicsUpdate()
     startTime = high_resolution_clock::now();
 
     // obj.update();
-    for(Object *obj : _instance->objs)
+    for(Object *obj : _pInstance->objs)
     {
         obj->update(updateTime);
     }
@@ -184,7 +193,7 @@ void Game::physicsUpdate()
 
     lock_guard<mutex> guard(mutex_);
 
-    ups = 1000000000 / (sleepTime.count() > 0 ? timeDiff.count() : execTime.count());
+    _ups = 1000000000 / (sleepTime.count() > 0 ? timeDiff.count() : execTime.count());
 
     if(sleepTime.count() > 0) this_thread::sleep_for(sleepTime);
 }
@@ -195,17 +204,12 @@ void Game::draw()
 
     SDL_SetRenderDrawColor(pRenderer, 255, 255, 255, 255);
 
+    pUIManager->draw(pRenderer);
+
     // obj.draw();
     for(Object *obj : objs)
     {
         obj->draw(pRenderer);
-    }
-
-    // uiElement.draw();
-    for(UIElement *el : uiElements)
-    {
-        el->update();
-        el->draw(pRenderer);
     }
 
     // draw fps and ups

@@ -8,11 +8,14 @@
 #include "../SDL2/SDL_ttf.h"
 #include "Game.h"
 
+class UIManager;
+
 class UIElement
 {
     protected:
         Game *_pGame;
         ContentManager *_pContentManager;
+        UIManager *_pUIManager;
         Vector2 _relativePos;
         Vector2 _relativeDims;
         Vector2Int _pxPos;
