@@ -77,7 +77,8 @@ int Game::gameInit()
         {"left", SDL_SCANCODE_A},
         {"right", SDL_SCANCODE_D},
         {"boost", SDL_SCANCODE_LSHIFT},
-        {"close", SDL_SCANCODE_ESCAPE}
+        {"close", SDL_SCANCODE_ESCAPE},
+        {"reset", SDL_SCANCODE_R}
     };
 
     pContentManager = new ContentManager();
@@ -86,19 +87,9 @@ int Game::gameInit()
     pUIManager = UIManager::getInstance();
     pUIManager->init();
 
-    // SDL_Color black{0, 0, 0, 255};
+    pPlayer = new Player(Vector2(1, 1));
 
-    // TextElement *test = new TextElement("this is a test", "arial.ttf", black, Vector2::zero, Vector2(0.1125, 0.025));
-    // test->setText("hi");
-
-    pPlayer = new Player(Vector2(-5, 10));
-
-    Path *path = new Path(std::vector<Vector2>{Vector2::zero, Vector2(1, 1), Vector2(1, -1), Vector2(2, -1)});
-
-    for(int i = 0; i < 100; i+=2)
-    {
-        Object *pBlock = new Object("blueblock.png", Vector2(i, -11.5), Vector2(1, 1));
-    }
+    Path *path = new Path(std::vector<Vector2>{Vector2::zero, Vector2(3, 0), Vector2(4, 0.5)});
 
     return 0;
 }

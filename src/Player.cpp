@@ -20,6 +20,12 @@ void Player::update(float time)
     if(inputState[_pGame->keybinds["down"]]) dir.y -= 1; // down
     if(inputState[_pGame->keybinds["right"]]) dir.x += 1; // right
     if(inputState[_pGame->keybinds["left"]]) dir.x -= 1; // left
+    if(inputState[_pGame->keybinds["reset"]])
+    {
+        _pos = Vector2(1, 1);
+        _velocity = Vector2::zero;
+        _acceleration = Vector2::zero;
+    }
 
     bool boost = inputState[_pGame->keybinds["boost"]];
     

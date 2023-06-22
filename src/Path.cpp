@@ -46,17 +46,21 @@ Vector2 Path::pathSnap(Player *pPlayer, float time)
     Vector2 prevPoint = _points[0];
     Vector2 currPoint;
     float slope;
-    Vector2 nextPos = pPlayer->getPos() + pPlayer->getVelocity() * time;
+    Vector2 playerPos = pPlayer->getPos();
+    Vector2 nextPos = playerPos + pPlayer->getVelocity() * time;
+    Vector2 playerDims = pPlayer->getDims();
+    float checkY;
     for(int i = 1; i < _points.size(); i++)
     {
         currPoint = _points[i];
         slope = (currPoint.y - prevPoint.y) / (currPoint.x - prevPoint.x);
+        checkY = slope*(nextPos.x - prevPoint.x) + prevPoint.y;
 
-        if(nextPos.y <= slope*(nextPos.x - prevPoint.x) + prevPoint.y && 
-            nextPos.y + pPlayer->getDims().y > slope*(nextPos.x - prevPoint.x) + prevPoint.y &&
-            nextPos.x < currPoint.x && nextPos.x + pPlayer->getDims().x > prevPoint.x)
+        if(nextPos.y <= checkY && nextPos.y + playerDims.y > checkY &&
+            nextPos.x < currPoint.x && nextPos.x + playerDims.x > prevPoint.x &&
+            playerPos.y + playerDims.y >= checkY)
             {
-                nextPos.y = slope*(nextPos.x - prevPoint.x) + prevPoint.y;
+                nextPos.y = checkY;
                 break;
             }
 
