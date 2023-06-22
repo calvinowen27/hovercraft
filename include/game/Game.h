@@ -17,6 +17,7 @@ class Object;
 class UIElement;
 class Player;
 class UIManager;
+class Path;
 
 class Game
 {
@@ -32,10 +33,13 @@ class Game
         std::vector<Object *> objs;
         std::map<std::string, SDL_Scancode> keybinds;
         std::queue<SDL_Event> inputEvents;
+        std::vector<Path *> paths;
 
         ContentManager *pContentManager;
         KeyboardHandler keyboardHandler;
         UIManager *pUIManager;
+
+        Player *pPlayer;
 
         int winWidth = 2500, winHeight = 1750;
         int ppm = 256; // pixels per meter, 128 by default

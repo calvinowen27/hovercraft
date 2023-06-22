@@ -1,5 +1,6 @@
 #include "../include/game/Player.h"
 #include "../include/game/Game.h"
+#include "../include/game/Path.h"
 
 std::map<SDL_Scancode, bool> inputState;
 
@@ -46,67 +47,31 @@ void Player::update(float time)
 
     addForce(Vector2(0, -9.8*_mass));
 
+    Vector2 nextPos = _pos + _velocity * time;
+    Vector2 snapPos;
+    for(Path *path : _pGame->paths)
+    {
+        snapPos = path->pathSnap(this, time);
+        if(snapPos != nextPos)
+        {
+            nextPos = snapPos;
+            break;
+        }
+    }
+
+    _velocity = (nextPos - _pos) / time;
+
     this->Object::update(time);
+    
+    if(dir.x == 0 && _velocity.x > -0.125 && _velocity.x < 0.125) _velocity.x = 0;
+    if(dir.y == 0 && _velocity.y > -0.125 && _velocity.y < 0.125) _velocity.y = 0;
 
-    if(_pos.y < -10)
-    {
-        _pos.y = -10;
-        _velocity.y = 0;
-    }
-
-    if(_pos.y < -9 && _pos.x > 2)
-    {
-        _pos.y = -9;
-        _velocity.y = 0;
-    }
-
-    // if(Vector2::distance(_acceleration, Vector2(0, -9.8)) < 0.5)
-    // {
-    //     if(dir.x == 0) _velocity.x *= 0.9;
-    //     if(dir.y == 0) _velocity.y *= 0.9;
-    // }
-        
-    if(_velocity.x > -0.05 && _velocity.x < 0.05) _velocity.x = 0;
-    if(_velocity.y > -0.05 && _velocity.y < 0.05) _velocity.y = 0;
-
-    _pGame->cameraPos = _pos + Vector2(0, _dims.y / 2);
+    _pGame->cameraPos = _pos + Vector2(_dims.x / 2, _dims.y / 2);
 }
 
 void Player::draw(SDL_Renderer *pRenderer)
 {
     Object::draw(pRenderer);
-
-    // draw pos, velocity, and acceleration
-    // int posW, posH, velW, velH, accW, accH;
-    // char posText[50];
-    // sprintf(posText, "pos: (%f, %f)", _pos.x, _pos.y);
-    // char velText[50];
-    // sprintf(velText, "vel: (%f, %f)", _velocity.x, _velocity.y);
-    // char accText[50];
-    // sprintf(accText, "acc: (%f, %f)", _acceleration.x, _acceleration.y);
-    // TTF_Font *arial = TTF_OpenFont("./content/arial.ttf", 24);
-    // TTF_SizeUTF8(arial, posText, &posW, &posH);
-    // TTF_SizeUTF8(arial, velText, &velW, &velH);
-    // TTF_SizeUTF8(arial, accText, &accW, &accH);
-    // SDL_Color black = {0, 0, 0, 255};
-    // SDL_Surface* posSurface = TTF_RenderText_Solid(arial, posText, black);
-    // SDL_Texture* posTexture = SDL_CreateTextureFromSurface(_pGame->pRenderer, posSurface);
-    // SDL_Surface* velSurface = TTF_RenderText_Solid(arial, velText, black);
-    // SDL_Texture* velTexture = SDL_CreateTextureFromSurface(_pGame->pRenderer, velSurface);
-    // SDL_Surface* accSurface = TTF_RenderText_Solid(arial, accText, black);
-    // SDL_Texture* accTexture = SDL_CreateTextureFromSurface(_pGame->pRenderer, accSurface);
-
-    // SDL_RenderCopy(_pGame->pRenderer, posTexture, NULL, new SDL_Rect{300, 0, posW, posH});
-    // SDL_RenderCopy(_pGame->pRenderer, velTexture, NULL, new SDL_Rect{300, posH, velW, velH});
-    // SDL_RenderCopy(_pGame->pRenderer, accTexture, NULL, new SDL_Rect{300, posH+velH, accW, accH});
-
-    // SDL_FreeSurface(posSurface);
-    // SDL_FreeSurface(velSurface);
-    // SDL_FreeSurface(accSurface);
-    // SDL_DestroyTexture(posTexture);
-    // SDL_DestroyTexture(velTexture);
-    // SDL_DestroyTexture(accTexture);
-    // TTF_CloseFont(arial);
 }
 
 void Player::processInputs()

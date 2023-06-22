@@ -32,11 +32,13 @@ class Object
         virtual void draw(SDL_Renderer *pRenderer);
         virtual void update(float time);
         void addForce(Vector2 force);
-        Vector2 getPos();
-        Vector2Int getPxPos();
-        Vector2 getDims();
-        Vector2Int getPxDims();
-        SDL_Texture* getTexture();
+        inline Vector2 getPos() { return _pos; }
+        inline Vector2 getVelocity() { return _velocity; }
+        inline Vector2 getAcceleration() { return _acceleration; }
+        inline Vector2Int getPxPos() { return _pxPos; }
+        inline Vector2 getDims() { return _dims; }
+        inline Vector2Int getPxDims() { return _pxDims; }
+        inline SDL_Texture* getTexture() { return _pTexture; }
         bool isTouching(const Object other) const;
         bool willTouch(Vector2 newPos, const Object& other) const;
 };

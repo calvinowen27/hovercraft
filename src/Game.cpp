@@ -6,6 +6,7 @@
 #include "../include/game/Player.h"
 #include "../include/game/UIElement.h"
 #include "../include/game/UIManager.h"
+#include "../include/game/Path.h"
 
 #include <thread>
 #include <chrono>
@@ -90,7 +91,9 @@ int Game::gameInit()
     // TextElement *test = new TextElement("this is a test", "arial.ttf", black, Vector2::zero, Vector2(0.1125, 0.025));
     // test->setText("hi");
 
-    Player *player = new Player(Vector2::zero);
+    pPlayer = new Player(Vector2(-5, 10));
+
+    Path *path = new Path(std::vector<Vector2>{Vector2::zero, Vector2(1, 1), Vector2(1, -1), Vector2(2, -1)});
 
     for(int i = 0; i < 100; i+=2)
     {
@@ -212,31 +215,14 @@ void Game::draw()
         obj->draw(pRenderer);
     }
 
-    // draw fps and ups
-    // int fpsW, fpsH, upsW, upsH;
-    // char fpsText[10];
-    // sprintf(fpsText, "FPS %d", fps);
-    // char upsText[10];
-    // sprintf(upsText, "UPS %d", ups);
-    // TTF_Font* arial = TTF_OpenFont("./content/arial.ttf", 24);
-    // TTF_SizeUTF8(arial, fpsText, &fpsW, &fpsH);
-    // TTF_SizeUTF8(arial, upsText, &upsW, &upsH);
-    // SDL_Color black = {0, 0, 0, 255};
-    // SDL_Surface* fpsSurface = TTF_RenderText_Solid(arial, fpsText, black);
-    // SDL_Texture* fpsTexture = SDL_CreateTextureFromSurface(pRenderer, fpsSurface);
-    // SDL_Surface* upsSurface = TTF_RenderText_Solid(arial, upsText, black);
-    // SDL_Texture* upsTexture = SDL_CreateTextureFromSurface(pRenderer, upsSurface);
+    for(Path *path : paths)
+    {
+        path->draw(pRenderer);
+    }
 
-    // SDL_RenderCopy(pRenderer, fpsTexture, NULL, new SDL_Rect{0, 0, fpsW, fpsH});
-    // SDL_RenderCopy(pRenderer, upsTexture, NULL, new SDL_Rect{0, fpsH, upsW, upsH});
+    SDL_SetRenderDrawColor(pRenderer, 255, 255, 255, 255);
 
     SDL_RenderPresent(pRenderer);
-
-    // SDL_FreeSurface(fpsSurface);
-    // SDL_FreeSurface(upsSurface);
-    // SDL_DestroyTexture(fpsTexture);
-    // SDL_DestroyTexture(upsTexture);
-    // TTF_CloseFont(arial);
 }
 
 Vector2 Game::pixelToWorld(Vector2Int pxPos)

@@ -14,6 +14,9 @@ class UIManager
 
         TextElement *_pFPScounter;
         TextElement *_pUPScounter;
+        TextElement *_pPosDisplay;
+        TextElement *_pVelDisplay;
+        TextElement *_pAccDisplay;
 
         SDL_Color _white{255, 255, 255, 255};
         SDL_Color _black{0, 0, 0, 255};

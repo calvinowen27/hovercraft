@@ -20,9 +20,8 @@ void TextElement::draw(SDL_Renderer *pRenderer)
 
     SDL_RenderCopy(pRenderer, _texture, NULL, &_textRect);
 
-    // std::cout << "drawing text" << std::endl;
-    // std::cout << _textRect << std::endl;
-    // std::cout << _pxPos << " " << _pxDims << std::endl << std::endl;
+    SDL_SetRenderDrawColor(pRenderer, 50, 50, 50, 142);
+    SDL_RenderDrawRect(pRenderer, &_drawRect);
 }
 
 void TextElement::update()
@@ -33,16 +32,18 @@ void TextElement::update()
 void TextElement::setText(std::string newText)
 {
     // measure dims
-    // keep width, height = (dims.x / dims.y) * desired height
     int w, h;
 
     TTF_SizeUTF8(_pFont, newText.c_str(), &w, &h);
 
     _pxTextWidth = ((float)w/(float)h)*_relativeDims.y*0.9*_pGame->winWidth;
-    // _drawRect.w = _pxDims.x;
-    // _drawRect.h = _pxDims.y;
-    // std::cout << _pxDims << std::endl;
     _textRect = _drawRect;
+    if(_pxTextWidth > _drawRect.w) 
+    {
+        _pxTextWidth = _drawRect.w;
+        _textRect.h = ((float)h/(float)w)*_relativeDims.x*_pGame->winHeight;
+    }
+
     _textRect.w = _pxTextWidth;
 
     _text = newText;

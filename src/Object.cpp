@@ -14,7 +14,7 @@ Object::Object(std::string textureName, Vector2 pos, Vector2 dims, bool doCollis
     _pos = pos;
     _dims = dims;
     _pxDims = (Vector2Int)(dims * _pGame->ppm);
-    _pxPos = _pGame->worldToPixel(pos) - Vector2Int(_pxDims.x / 2, _pxDims.y);
+    _pxPos = _pGame->worldToPixel(pos) - Vector2Int(0, _pxDims.y);
     _doCollisions = doCollisions;
 
     _spriteRect = SDL_Rect{_pxPos.x, _pxPos.y, _pxDims.x, _pxDims.y};
