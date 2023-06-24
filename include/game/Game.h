@@ -41,7 +41,7 @@ class Game
 
         Player *pPlayer;
 
-        int winWidth = 2500, winHeight = 1750;
+        int winWidth = 1500, winHeight = 1000;
         int ppm = 256; // pixels per meter, 128 by default
         SDL_Window* pWindow;
         SDL_Renderer* pRenderer;
@@ -62,6 +62,8 @@ class Game
         friend bool operator==(const Game &a, const Game &b);
         inline int getFPS() { return _fps; }
         inline int getUPS() { return _ups; }
+        inline void zoomIn() { ppm += ppm < 256 ? 8 : 0; }
+        inline void zoomOut() { ppm -= ppm > 128 ? 8 : 0; }
 };
 
 #endif

@@ -11,6 +11,7 @@
 #include <thread>
 #include <chrono>
 
+
 using namespace std;
 
 Game* Game::_pInstance;
@@ -50,8 +51,21 @@ int Game::gameInit()
 
     TTF_Init();
 
+    float ddpi, hdpi, vdpi;
+    SDL_GetDisplayDPI(0, &ddpi, &hdpi, &vdpi);
+    winWidth *= hdpi / 96.f;
+    winHeight *= vdpi / 96.f;
+    ppm *= ddpi / 96.f;
+
+    Uint64 windowFlags = SDL_WINDOW_ALLOW_HIGHDPI | SDL_WINDOW_RESIZABLE;
+
     pWindow = SDL_CreateWindow("hovercraft", SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, 
-                                        winWidth, winHeight, SDL_WINDOW_ALLOW_HIGHDPI);
+                                        winWidth, winHeight, windowFlags);
+
+    // SDL_DisplayMode DM;
+    // SDL_GetCurrentDisplayMode(0, &DM);
+    // winWidth = DM.w;
+    // winHeight = DM.h;
 
     // SDL_SetWindowFullscreen(pWindow, SDL_WINDOW_FULLSCREEN_DESKTOP);
     
@@ -78,7 +92,9 @@ int Game::gameInit()
         {"right", SDL_SCANCODE_D},
         {"boost", SDL_SCANCODE_LSHIFT},
         {"close", SDL_SCANCODE_ESCAPE},
-        {"reset", SDL_SCANCODE_R}
+        {"reset", SDL_SCANCODE_R},
+        {"zoom in", SDL_SCANCODE_EQUALS},
+        {"zoom out", SDL_SCANCODE_MINUS}
     };
 
     pContentManager = new ContentManager();
@@ -124,7 +140,7 @@ void Game::frameUpdate()
 {
     using namespace chrono;
     float frameTime = 1 / (float)TARGET_FPS;
-    chrono::_V2::system_clock::time_point startTime;
+    chrono::system_clock::time_point startTime;
     nanoseconds timeDiff((int)(frameTime * 1000000000));
     nanoseconds execTime;
     nanoseconds sleepTime;
@@ -143,6 +159,15 @@ void Game::frameUpdate()
         if(event.type == SDL_KEYDOWN || event.type == SDL_KEYUP)
         {
             inputEvents.push(event);
+        }
+
+        if(event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_RESIZED)
+        {
+            SDL_Window *win = SDL_GetWindowFromID(event.window.windowID);
+            if(win == pWindow)
+            {
+                SDL_GetWindowSize(win, &winWidth, &winHeight);
+            }
         }
     }
 
@@ -167,7 +192,7 @@ void Game::physicsUpdate()
     using namespace chrono;
     float updateTime = 1 / (float)UPDATES_PER_SEC; // seconds
 
-    chrono::_V2::system_clock::time_point startTime;
+    chrono::system_clock::time_point startTime;
     nanoseconds timeDiff((int)(updateTime * 1000000000)); // convert updateTime to nanoseconds
     nanoseconds execTime;
     nanoseconds sleepTime;

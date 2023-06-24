@@ -1,9 +1,10 @@
 CC = g++
 CFLAGS = -std=c++17 -Wall -Wextra -pedantic
 
-LDFLAGS = -L./lib -lSDL2main -lSDL2 -lSDL2_image -lSDL2_ttf
+LDFLAGS = -L./lib -lSDL2main -lSDL2 -lSDL2_image -lSDL2_ttf -lUser32
 
 SRCDIR = src
+INCLUDEDIR = include/game
 OBJDIR = build/obj
 DBGDIR = build/debug/
 RLSDIR = build/release/
@@ -22,7 +23,7 @@ release: $(OBJECTS) $(RLSDIR)
 	cp -r content/ $(RLSDIR)content
 	$(CC) $(OBJECTS) $(LDFLAGS) -o $(RLSDIR)$(EXECUTABLE)
 
-$(OBJDIR)/%.o: $(SRCDIR)/%.cpp $(OBJDIR)
+$(OBJDIR)/%.o: $(SRCDIR)/%.cpp $(INCLUDEDIR)/%.h $(OBJDIR)
 	$(CC) $(CFLAGS) -c $< -o $@
 
 $(OBJDIR):

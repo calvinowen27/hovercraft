@@ -24,14 +24,14 @@ Object::Object(std::string textureName, Vector2 pos, Vector2 dims, bool doCollis
 
 void Object::draw(SDL_Renderer *pRenderer)
 {
-    _spriteRect.x = _pxPos.x;
-    _spriteRect.y = _pxPos.y;
+    _spriteRect = SDL_Rect{_pxPos.x, _pxPos.y, _pxDims.x, _pxDims.y};
 
     SDL_RenderCopy(pRenderer, _pTexture, NULL, &_spriteRect);
 }
 
 void Object::update(float time)
 {
+    _pxDims = (Vector2Int)(_dims * _pGame->ppm);
     _pxPos = _pGame->worldToPixel(_pos) - Vector2Int(_pxDims.x / 2, _pxDims.y);
 
     Vector2 nextPos = _pos + _velocity * time;

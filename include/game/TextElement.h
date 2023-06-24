@@ -11,6 +11,7 @@ class TextElement : public UIElement
         TTF_Font *_pFont;
 
         float _pxTextWidth;
+        Vector2Int _textDims;
         SDL_Rect _textRect;
         SDL_Surface *_surface = nullptr;
         SDL_Texture *_texture = nullptr;

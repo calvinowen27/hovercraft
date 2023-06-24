@@ -26,22 +26,30 @@ void TextElement::draw(SDL_Renderer *pRenderer)
 
 void TextElement::update()
 {
+    UIElement::update();
 
+    _pxTextWidth = ((float)_textDims.x/(float)_textDims.y)*_relativeDims.y*0.9*_pGame->winWidth;
+    _textRect = _drawRect;
+    if(_pxTextWidth > _drawRect.w) 
+    {
+        _pxTextWidth = _drawRect.w;
+        _textRect.h = ((float)_textDims.x/(float)_textDims.y)*_relativeDims.x*_pGame->winHeight;
+    }
+
+    _textRect.w = _pxTextWidth;
 }
 
 void TextElement::setText(std::string newText)
 {
     // measure dims
-    int w, h;
+    TTF_SizeUTF8(_pFont, newText.c_str(), &_textDims.x, &_textDims.y);
 
-    TTF_SizeUTF8(_pFont, newText.c_str(), &w, &h);
-
-    _pxTextWidth = ((float)w/(float)h)*_relativeDims.y*0.9*_pGame->winWidth;
+    _pxTextWidth = ((float)_textDims.x/(float)_textDims.y)*_relativeDims.y*0.9*_pGame->winWidth;
     _textRect = _drawRect;
     if(_pxTextWidth > _drawRect.w) 
     {
         _pxTextWidth = _drawRect.w;
-        _textRect.h = ((float)h/(float)w)*_relativeDims.x*_pGame->winHeight;
+        _textRect.h = ((float)_textDims.x/(float)_textDims.y)*_relativeDims.x*_pGame->winHeight;
     }
 
     _textRect.w = _pxTextWidth;

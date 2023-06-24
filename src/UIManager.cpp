@@ -34,6 +34,12 @@ void UIManager::update()
     _pPosDisplay->setText("Position: " + _pGame->pPlayer->getPos().to_string());
     _pVelDisplay->setText("Velocity: " + _pGame->pPlayer->getVelocity().to_string());
     _pAccDisplay->setText("Acceleration: " + _pGame->pPlayer->getAcceleration().to_string());
+
+    // el.update()
+    for(UIElement *el : _uiElements)
+    {
+        el->update();
+    }
 }
 
 void UIManager::draw(SDL_Renderer *pRenderer)
@@ -41,7 +47,6 @@ void UIManager::draw(SDL_Renderer *pRenderer)
     // el.draw();
     for(UIElement *el : _uiElements)
     {
-        el->update();
         el->draw(pRenderer);
     }
 }

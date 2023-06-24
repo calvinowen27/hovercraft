@@ -26,6 +26,8 @@ void Player::update(float time)
         _velocity = Vector2::zero;
         _acceleration = Vector2::zero;
     }
+    if(inputState[_pGame->keybinds["zoom in"]]) _pGame->zoomIn();
+    if(inputState[_pGame->keybinds["zoom out"]]) _pGame->zoomOut();
 
     bool boost = inputState[_pGame->keybinds["boost"]];
     

@@ -2,3 +2,5 @@
 .vscode/settings.json
 
 build/obj/
+
+*.stackdump
