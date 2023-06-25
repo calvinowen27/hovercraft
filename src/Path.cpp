@@ -22,7 +22,7 @@ void Path::draw(SDL_Renderer *pRenderer)
     }
 }
 
-void Path::addPoint(Vector2 newPoint)
+void Path::addPoint(Vector2 &newPoint)
 {
     _points.push_back(newPoint);
 }

@@ -103,9 +103,19 @@ int Game::gameInit()
     pUIManager = UIManager::getInstance();
     pUIManager->init();
 
-    pPlayer = new Player(Vector2(1, 1));
+    pPlayer = new Player(Vector2(0, 2));
 
-    Path *path = new Path(std::vector<Vector2>{Vector2::zero, Vector2(3, 0), Vector2(4, 0.5)});
+    std::vector<Vector2> points;
+    for(float x = -5; x < 15; x += 0.25)
+    {
+        points.push_back(Vector2(x, SDL_sinf(x) + 1));
+    }
+
+    Path *path = new Path(points);
+
+    // Vector2::zero, Vector2(-3, 1.5), 
+
+    // Path *path = new Path(std::vector<Vector2>{Vector2::zero, Vector2(3, 0), Vector2(4, 0.125), Vector2(5, 0.375), Vector2(6, 0.875), Vector2(7, 1.625), Vector2(8, 2.625), Vector2(10, 1.625)});
 
     return 0;
 }

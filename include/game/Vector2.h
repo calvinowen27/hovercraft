@@ -20,7 +20,8 @@ class Vector2
         void normalize();
         Vector2 normalized() const;
         float magnitude() const;
-        Vector2 getOne() const;
+        Vector2 getDir() const;
+        Vector2 abs() const;
         friend bool operator==(const Vector2& a, const Vector2& b);
         friend bool operator!=(const Vector2& a, const Vector2& b);
         Vector2 operator+(const Vector2& b) const;

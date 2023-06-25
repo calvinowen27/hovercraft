@@ -50,9 +50,15 @@ float Vector2::magnitude() const
     return (float)sqrt(x*x+y*y);
 }
 
-Vector2 Vector2::getOne() const
+Vector2 Vector2::getDir() const
 {
-    Vector2 result = Vector2(x == 0 ? 0 : x / fabs(x), y == 0 ? 0 : y / fabs(y));
+    Vector2 result(x == 0 ? 0 : x / fabs(x), y == 0 ? 0 : y / fabs(y));
+    return result;
+}
+
+Vector2 Vector2::abs() const
+{
+    Vector2 result(fabs(x), fabs(y));
     return result;
 }
 

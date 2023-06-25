@@ -20,6 +20,9 @@ class Object
         Vector2 _dims; // dimensions (m)
         Vector2Int _pxDims; // pixel dimensions
 
+        Vector2 _netForce; // N
+
+        // float _textureAngle = 0; // degrees
         float _mass = 50; // kg
 
         bool _doCollisions = true;
@@ -35,6 +38,8 @@ class Object
         inline Vector2 getPos() { return _pos; }
         inline Vector2 getVelocity() { return _velocity; }
         inline Vector2 getAcceleration() { return _acceleration; }
+        inline Vector2 getNetForce() { return _netForce; }
+        inline float getMass() { return _mass; }
         inline Vector2Int getPxPos() { return _pxPos; }
         inline Vector2 getDims() { return _dims; }
         inline Vector2Int getPxDims() { return _pxDims; }

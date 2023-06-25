@@ -27,34 +27,26 @@ void Object::draw(SDL_Renderer *pRenderer)
     _spriteRect = SDL_Rect{_pxPos.x, _pxPos.y, _pxDims.x, _pxDims.y};
 
     SDL_RenderCopy(pRenderer, _pTexture, NULL, &_spriteRect);
+
+    // SDL_RenderCopyEx(pRenderer, _pTexture, NULL, &_spriteRect, _textureAngle, NULL, SDL_FLIP_NONE);
 }
 
 void Object::update(float time)
 {
-    _pxDims = (Vector2Int)(_dims * _pGame->ppm);
     _pxPos = _pGame->worldToPixel(_pos) - Vector2Int(_pxDims.x / 2, _pxDims.y);
+    _pxDims = (Vector2Int)(_dims * _pGame->ppm);
 
-    Vector2 nextPos = _pos + _velocity * time;
-
-    for(auto other : _pGame->objs)
-    {
-        if(other == this || !other->_doCollisions) continue;
-
-        if(willTouch(nextPos, *other))
-        {
-            _velocity = _velocity.normalized() * (Vector2::distance(_pos, other->_pos) - Vector2::distance(nextPos, other->_pos));
-            nextPos = _pos + _velocity * time;
-        }
-    }
-
-    _pos += _velocity * time;
-
+    _acceleration = _netForce / _mass;
     _velocity += _acceleration * time;
+    _pos += _velocity * time;
+    
+    _netForce = Vector2::zero;
 }
 
 void Object::addForce(Vector2 force)
 {
-    _acceleration += force / _mass;
+    // _acceleration += force / _mass;
+    _netForce += force;
 }
 
 bool Object::isTouching(const Object other) const
