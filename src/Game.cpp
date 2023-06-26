@@ -103,7 +103,7 @@ int Game::gameInit()
     pUIManager = UIManager::getInstance();
     pUIManager->init();
 
-    pPlayer = new Player(Vector2::zero);
+    pPlayer = new Player(Vector2(0, 1));
 
     Path *path = new Path();
 

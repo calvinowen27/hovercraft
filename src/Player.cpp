@@ -20,7 +20,7 @@ void Player::update(float time)
     if(inputState[_pGame->keybinds["left"]]) moveDir.x -= 1; // left
     if(inputState[_pGame->keybinds["reset"]])
     {
-        _pos = Vector2::zero;
+        _pos = Vector2(0, 1);
         _velocity = Vector2::zero;
         _acceleration = Vector2::zero;
     }
