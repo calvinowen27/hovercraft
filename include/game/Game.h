@@ -1,6 +1,10 @@
 #ifndef GAME_INCLUDE
 #define GAME_INCLUDE
 
+#define RAD_TO_DEGS 57.2957795
+#define PI 3.1415927
+#define TWO_PI 6.2831853
+
 #include <vector>
 #include <map>
 #include <mutex>

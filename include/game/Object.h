@@ -22,10 +22,11 @@ class Object
 
         Vector2 _netForce; // N
 
-        // float _textureAngle = 0; // degrees
         float _mass = 50; // kg
 
         bool _doCollisions = true;
+
+        float _textureAngle = 0; // degrees
 
         SDL_Texture *_pTexture;
         SDL_Rect _spriteRect;

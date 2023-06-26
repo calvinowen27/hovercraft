@@ -33,7 +33,7 @@ void TextElement::update()
     if(_pxTextWidth > _drawRect.w) 
     {
         _pxTextWidth = _drawRect.w;
-        _textRect.h = ((float)_textDims.x/(float)_textDims.y)*_relativeDims.x*_pGame->winHeight;
+        _textRect.h = ((float)_textDims.y/(float)_textDims.x)*_relativeDims.x*_pGame->winHeight;
     }
 
     _textRect.w = _pxTextWidth;
@@ -59,7 +59,16 @@ void TextElement::setText(std::string newText)
     if(_texture != nullptr) SDL_DestroyTexture(_texture);
 
     _surface = TTF_RenderText_Solid(_pFont, _text.c_str(), _color);
+    if(_surface == NULL)
+    {
+        std::cerr << "TextElement: setText(): Failed to create surface: " << TTF_GetError() << std::endl;
+    }
     _texture = SDL_CreateTextureFromSurface(_pGame->pRenderer, _surface);
+    if(_texture == NULL)
+    {
+        std::cout << "TextElement: setText(): Failed to create texture: " << IMG_GetError() << std::endl;
+    }
+
     SDL_FreeSurface(_surface);
 }
 

@@ -14,15 +14,15 @@ class Path
         Game *_pGame;
 
     public:
+        Path();
         Path(std::vector<Vector2> points);
         void draw(SDL_Renderer *pRenderer);
-        void addPoint(Vector2 &newPoint);
+        void addPoint(Vector2 newPoint);
 
         // removePoint()
         // returns an int, either 0 or 1
         // 0: successfully removed point, 1: point does not exist in vector
         int removePoint(Vector2 point);
-        Vector2 pathSnap(Player *pPlayer, float time);
         inline std::vector<Vector2> getPoints() { return _points; }
 };
 

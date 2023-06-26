@@ -26,9 +26,9 @@ void Object::draw(SDL_Renderer *pRenderer)
 {
     _spriteRect = SDL_Rect{_pxPos.x, _pxPos.y, _pxDims.x, _pxDims.y};
 
-    SDL_RenderCopy(pRenderer, _pTexture, NULL, &_spriteRect);
+    // SDL_RenderCopy(pRenderer, _pTexture, NULL, &_spriteRect);
 
-    // SDL_RenderCopyEx(pRenderer, _pTexture, NULL, &_spriteRect, _textureAngle, NULL, SDL_FLIP_NONE);
+    SDL_RenderCopyEx(pRenderer, _pTexture, NULL, &_spriteRect, _textureAngle, NULL, _velocity.x < 0 ? SDL_FLIP_HORIZONTAL : SDL_FLIP_NONE);
 }
 
 void Object::update(float time)
@@ -37,7 +37,13 @@ void Object::update(float time)
     _pxDims = (Vector2Int)(_dims * _pGame->ppm);
 
     _acceleration = _netForce / _mass;
+    if(SDL_fabsf(_acceleration.x) < 0.0625) _acceleration.x = 0;
+    if(SDL_fabsf(_acceleration.x) < 0.0625) _acceleration.x = 0;
+
     _velocity += _acceleration * time;
+    if(SDL_fabsf(_velocity.x) < 0.0625) _velocity.x = 0;
+    if(SDL_fabsf(_velocity.y) < 0.0625) _velocity.y = 0;
+
     _pos += _velocity * time;
     
     _netForce = Vector2::zero;

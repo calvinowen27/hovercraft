@@ -10,7 +10,6 @@ Vector2::Vector2()
     this->x = 0;
     this->y = 0;
 }
-
 Vector2::Vector2(float x, float y)
 {
     this->x = x;
@@ -59,6 +58,13 @@ Vector2 Vector2::getDir() const
 Vector2 Vector2::abs() const
 {
     Vector2 result(fabs(x), fabs(y));
+    return result;
+}
+
+Vector2 Vector2::round(int decimals) const
+{
+    int s = pow(10, decimals);
+    Vector2 result(roundf(x*s)/s, roundf(x*s)/s);
     return result;
 }
 

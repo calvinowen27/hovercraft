@@ -1,5 +1,11 @@
 #include "../include/game/Path.h"
 
+Path::Path()
+{
+    _pGame = Game::getInstance();
+    _pGame->paths.push_back(this);
+}
+
 Path::Path(std::vector<Vector2> points)
 {
     _pGame = Game::getInstance();
@@ -22,7 +28,7 @@ void Path::draw(SDL_Renderer *pRenderer)
     }
 }
 
-void Path::addPoint(Vector2 &newPoint)
+void Path::addPoint(Vector2 newPoint)
 {
     _points.push_back(newPoint);
 }
@@ -39,33 +45,4 @@ int Path::removePoint(Vector2 point)
     }
 
     return 1;
-}
-
-Vector2 Path::pathSnap(Player *pPlayer, float time)
-{
-    Vector2 prevPoint = _points[0];
-    Vector2 currPoint;
-    float slope;
-    Vector2 playerPos = pPlayer->getPos();
-    Vector2 nextPos = playerPos + pPlayer->getVelocity() * time;
-    Vector2 playerDims = pPlayer->getDims();
-    float checkY;
-    for(int i = 1; i < _points.size(); i++)
-    {
-        currPoint = _points[i];
-        slope = (currPoint.y - prevPoint.y) / (currPoint.x - prevPoint.x);
-        checkY = slope*(nextPos.x - prevPoint.x) + prevPoint.y;
-
-        if(nextPos.y <= checkY && nextPos.y + playerDims.y > checkY &&
-            nextPos.x < currPoint.x && nextPos.x + playerDims.x > prevPoint.x &&
-            playerPos.y + playerDims.y >= checkY)
-            {
-                nextPos.y = checkY;
-                break;
-            }
-
-        prevPoint = currPoint;
-    }
-
-    return nextPos;
 }
