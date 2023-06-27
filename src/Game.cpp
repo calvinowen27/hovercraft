@@ -84,18 +84,7 @@ int Game::gameInit()
         return EXIT_FAILURE;
     }
 
-    keybinds =
-    {
-        {"up", SDL_SCANCODE_W},
-        {"down", SDL_SCANCODE_S},
-        {"left", SDL_SCANCODE_A},
-        {"right", SDL_SCANCODE_D},
-        {"boost", SDL_SCANCODE_LSHIFT},
-        {"close", SDL_SCANCODE_ESCAPE},
-        {"reset", SDL_SCANCODE_R},
-        {"zoom in", SDL_SCANCODE_EQUALS},
-        {"zoom out", SDL_SCANCODE_MINUS}
-    };
+    pKeyboardHandler = new KeyboardHandler();
 
     pContentManager = new ContentManager();
     pContentManager->loadContent();
@@ -156,14 +145,14 @@ void Game::frameUpdate()
 
     while(SDL_PollEvent(&event))
     {
-        if(event.type == SDL_QUIT || keyboardHandler.isPressed(keybinds["close"]))
+        if(event.type == SDL_QUIT || pKeyboardHandler->getInputState(ACTION_CLOSE))
         {
             running = false;
         }
 
         if(event.type == SDL_KEYDOWN || event.type == SDL_KEYUP)
         {
-            inputEvents.push(event);
+            pKeyboardHandler->pushEvent(event);
         }
 
         if(event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_RESIZED)
@@ -203,6 +192,8 @@ void Game::physicsUpdate()
     nanoseconds sleepTime;
 
     startTime = high_resolution_clock::now();
+
+    pKeyboardHandler->processInputs();
 
     // obj.update();
     for(Object *obj : _pInstance->objs)

@@ -35,12 +35,10 @@ class Game
     public:
         std::mutex mutex_;
         std::vector<Object *> objs;
-        std::map<std::string, SDL_Scancode> keybinds;
-        std::queue<SDL_Event> inputEvents;
         std::vector<Path *> paths;
 
         ContentManager *pContentManager;
-        KeyboardHandler keyboardHandler;
+        KeyboardHandler *pKeyboardHandler;
         UIManager *pUIManager;
 
         Player *pPlayer;

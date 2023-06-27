@@ -3,6 +3,7 @@
 
 // #include "Game.h"
 #include "Object.h"
+#include "KeyboardHandler.h"
 #include <map>
 
 class Path;
@@ -13,6 +14,8 @@ class Player : public Object
         Path *_pCurrPath;
         bool _isBoosting;
 
+        KeyboardHandler *_pKeyboardHandler;
+
     public:
         float driveForceMag = 2500; // N
         float dragCoeff = 81.6; // scalar
@@ -20,7 +23,6 @@ class Player : public Object
         Player(Vector2 pos);
         void draw(SDL_Renderer *pRenderer) override;
         void update(float time) override;
-        void processInputs();
         Path *handlePathInteractions(Vector2 moveDir, float time);
 };
 

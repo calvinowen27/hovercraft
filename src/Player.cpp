@@ -6,28 +6,27 @@ std::map<SDL_Scancode, bool> inputState;
 
 Player::Player(Vector2 pos) : Object("player.png", pos, Vector2(0.5, 0.5))
 {
+    _pKeyboardHandler = _pGame->pKeyboardHandler;
 }
 
 void Player::update(float time)
 {
     Vector2 moveDir;
 
-    processInputs();
-
     // if(inputState[_pGame->keybinds["up"]]) moveDir.y += 1; // up
     // if(inputState[_pGame->keybinds["down"]]) moveDir.y -= 1; // down
-    if(inputState[_pGame->keybinds["right"]]) moveDir.x += 1; // right
-    if(inputState[_pGame->keybinds["left"]]) moveDir.x -= 1; // left
-    if(inputState[_pGame->keybinds["reset"]])
+    if(_pKeyboardHandler->getInputState(ACTION_MOVE_RIGHT)) moveDir.x += 1; // right
+    if(_pKeyboardHandler->getInputState(ACTION_MOVE_LEFT)) moveDir.x -= 1; // left
+    if(_pKeyboardHandler->getInputState(ACTION_RESET))
     {
         _pos = Vector2(0, 1);
         _velocity = Vector2::zero;
         _acceleration = Vector2::zero;
     }
-    if(inputState[_pGame->keybinds["zoom in"]]) _pGame->zoomIn();
-    if(inputState[_pGame->keybinds["zoom out"]]) _pGame->zoomOut();
+    if(_pKeyboardHandler->getInputState(ACTION_ZOOM_IN)) _pGame->zoomIn();
+    if(_pKeyboardHandler->getInputState(ACTION_ZOOM_OUT)) _pGame->zoomOut();
 
-    _isBoosting = inputState[_pGame->keybinds["boost"]];
+    _isBoosting = _pKeyboardHandler->getInputState(ACTION_BOOST);
 
     addForce(Vector2(0, -9.8*_mass)); // apply gravity
 
@@ -50,19 +49,6 @@ void Player::update(float time)
 void Player::draw(SDL_Renderer *pRenderer)
 {
     Object::draw(pRenderer);
-}
-
-void Player::processInputs()
-{
-    SDL_Event event;
-    while(_pGame->inputEvents.size())
-    {
-        event = _pGame->inputEvents.front();
-
-        inputState[event.key.keysym.scancode] = (event.type == SDL_KEYDOWN);
-
-        _pGame->inputEvents.pop();
-    }
 }
 
 Path *Player::handlePathInteractions(Vector2 moveDir, float time)
