@@ -15,12 +15,15 @@ LDFLAGS = -L./lib -lSDL2main -lSDL2 -lSDL2_image -lSDL2_ttf -lUser32
 EXECUTABLE = hovercraft
 
 debug: $(OBJECTS) $(DBGDIR)
+	rm -rf $(DBGDIR)content
+	mkdir -p $(DBGDIR)content
+	cp -r content $(DBGDIR)
 	$(CC) $(OBJECTS) $(LDFLAGS) -o $(DBGDIR)$(EXECUTABLE)
 
 release: $(OBJECTS) $(RLSDIR)
 	rm -rf $(RLSDIR)content
 	mkdir -p $(RLSDIR)content
-	cp -r content/ $(RLSDIR)content
+	cp -r content $(RLSDIR)
 	$(CC) $(OBJECTS) $(LDFLAGS) -o $(RLSDIR)$(EXECUTABLE)
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.cpp $(INCLUDEDIR)/%.h $(OBJDIR)
