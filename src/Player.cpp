@@ -12,11 +12,11 @@ Player::Player(Vector2 pos) : Object("player.png", pos, Vector2(0.5, 0.5))
 void Player::update(float time)
 {
     Vector2 moveDir;
-
+    _moveDir = Vector2::zero;
     // if(inputState[_pGame->keybinds["up"]]) moveDir.y += 1; // up
     // if(inputState[_pGame->keybinds["down"]]) moveDir.y -= 1; // down
-    if(_pKeyboardHandler->getInputState(ACTION_MOVE_RIGHT)) moveDir.x += 1; // right
-    if(_pKeyboardHandler->getInputState(ACTION_MOVE_LEFT)) moveDir.x -= 1; // left
+    if(_pKeyboardHandler->getInputState(ACTION_MOVE_RIGHT)) _moveDir.x += 1; // right
+    if(_pKeyboardHandler->getInputState(ACTION_MOVE_LEFT)) _moveDir.x -= 1; // left
     if(_pKeyboardHandler->getInputState(ACTION_RESET))
     {
         _pos = Vector2(0, 1);
@@ -28,7 +28,7 @@ void Player::update(float time)
 
     _isBoosting = _pKeyboardHandler->getInputState(ACTION_BOOST);
 
-    addForce(Vector2(0, -9.8*_mass)); // apply gravity
+    // addForce(Vector2(0, -9.8*_mass)); // apply gravity
 
     // apply drag
     if(Vector2::distance(_acceleration, Vector2(0, -9.8)) > 0.5)
@@ -39,7 +39,7 @@ void Player::update(float time)
         addForce(dragForce);
     }
 
-    _pCurrPath = handlePathInteractions(moveDir, time);
+    // _pCurrPath = handlePathCollisions(time);
 
     this->Object::update(time);
 
@@ -51,7 +51,7 @@ void Player::draw(SDL_Renderer *pRenderer)
     Object::draw(pRenderer);
 }
 
-Path *Player::handlePathInteractions(Vector2 moveDir, float time)
+Path *Player::handlePathCollisions(float time)
 {
     Vector2 tentAccel = _netForce / _mass;
     Vector2 tentVel = _velocity + ((tentAccel) * time);
@@ -97,13 +97,13 @@ Path *Player::handlePathInteractions(Vector2 moveDir, float time)
 
                 addForce(surfaceNorm * _netForce.magnitude()); // stopping force on collision
 
-                if(moveDir != Vector2::zero)
+                if(_moveDir != Vector2::zero)
                 {
                     // driving force applied in direction parallel to slope
                     if(_isBoosting)
-                        driveForce = slopeNorm * moveDir * driveForceMag * 2;
+                        driveForce = slopeNorm * _moveDir * driveForceMag * 2;
                     else
-                        driveForce = slopeNorm * moveDir * driveForceMag;
+                        driveForce = slopeNorm * _moveDir * driveForceMag;
 
                     addForce(driveForce);
                 }

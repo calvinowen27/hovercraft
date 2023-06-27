@@ -6,6 +6,7 @@
 
 class Game;
 class ContentManager;
+class Path;
 
 class Object
 {
@@ -19,6 +20,9 @@ class Object
         Vector2 _acceleration; // m/(s^2)
         Vector2 _dims; // dimensions (m)
         Vector2Int _pxDims; // pixel dimensions
+
+        Path *_pCurrPath;
+        Vector2 _currPathSlopeNorm;
 
         Vector2 _netForce; // N
 
@@ -35,6 +39,8 @@ class Object
         Object(std::string textureName, Vector2 pos, Vector2 dims, bool doCollisions=true);
         virtual void draw(SDL_Renderer *pRenderer);
         virtual void update(float time);
+        virtual Path *handlePathCollisions(float time);
+
         void addForce(Vector2 force);
         inline Vector2 getPos() { return _pos; }
         inline Vector2 getVelocity() { return _velocity; }

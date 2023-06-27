@@ -3,9 +3,9 @@
 
 #include <vector>
 #include "Vector2.h"
-#include "Player.h"
 #include "../SDL2/SDL.h"
-#include "Game.h"
+
+class Game;
 
 class Path
 {

@@ -94,6 +94,8 @@ int Game::gameInit()
 
     pPlayer = new Player(Vector2(0, 1));
 
+    new Object("blueblock.png", Vector2(2, 1), Vector2(0.5, 0.5));
+
     Path *path = new Path();
 
     for(float x = -15; x < 15; x += 0.125)

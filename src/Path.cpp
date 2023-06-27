@@ -1,4 +1,5 @@
 #include "../include/game/Path.h"
+#include "../include/game/Game.h"
 
 Path::Path()
 {
