@@ -7,6 +7,7 @@
 #include "../include/game/UIElement.h"
 #include "../include/game/UIManager.h"
 #include "../include/game/Path.h"
+#include "../include/game/MouseHandler.h"
 
 #include <thread>
 #include <chrono>
@@ -85,6 +86,7 @@ int Game::gameInit()
     }
 
     pKeyboardHandler = new KeyboardHandler();
+    pMouseHandler = new MouseHandler();
 
     pContentManager = new ContentManager();
     pContentManager->loadContent();
@@ -168,6 +170,7 @@ void Game::frameUpdate()
     }
 
     pUIManager->update();
+    pMouseHandler->update();
 
     draw();
 

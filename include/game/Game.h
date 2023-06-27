@@ -22,6 +22,7 @@ class UIElement;
 class Player;
 class UIManager;
 class Path;
+class MouseHandler;
 
 class Game
 {
@@ -39,6 +40,7 @@ class Game
 
         ContentManager *pContentManager;
         KeyboardHandler *pKeyboardHandler;
+        MouseHandler *pMouseHandler;
         UIManager *pUIManager;
 
         Player *pPlayer;

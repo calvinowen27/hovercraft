@@ -1,5 +1,6 @@
 #include "../include/game/UIManager.h"
 #include "../include/game/Player.h"
+#include "../include/game/Button.h"
 #include "cmath"
 
 UIManager* UIManager::_pInstance = nullptr;
